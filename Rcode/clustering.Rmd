@@ -11,7 +11,7 @@ library(phangorn)
 library(tsne)
 library(Rtsne)
 #base.dir <- '~/Documents/Covid19/'
-base.dir <- '~/Documents/GitHub/Covid19/'
+base.dir <- '~/Documents/GitHub/Covid19_Analyses/'
 #base.dir <- '/data1/GitHub/Covid19/'
 
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
