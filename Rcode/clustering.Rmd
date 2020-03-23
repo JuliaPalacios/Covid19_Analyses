@@ -1,0 +1,110 @@
+---
+title: "clustering sars-cov-2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ape)
+library(phangorn)
+library(tsne)
+library(Rtsne)
+#base.dir <- '~/Documents/Covid19/'
+base.dir <- '~/Documents/GitHub/Covid19/'
+#base.dir <- '/data1/GitHub/Covid19/'
+
+data.dir <- paste(base.dir, 'alignment/data/', sep='')
+
+##Sequence data (aligned already)
+gisaid.aligned <- paste(data.dir, 'beast_aligned_fftnsi.fasta', sep='')
+gisaid.usa.aligned <- paste(data.dir, '/USA/beast_aligned_usa.fasta', sep='')
+
+gisaidall <- read.FASTA(gisaid.aligned)
+gisaidus <- read.FASTA(gisaid.usa.aligned)
+
+##Metadata
+meta_fig <- read.delim(paste(data.dir, 'gisaid_meta_pp.tsv', sep=''), 
+                       header=TRUE, sep='\t', as.is=TRUE)
+```
+
+# Hierarchical clustering
+
+We'll do some hierarchical clustering of the SARS-CoV-2 sequence data using different distances. First just hamming distance
+
+```{r}
+gisaidall <- as.phyDat(gisaidall)
+tmp <- dist.hamming(gisaidall)
+tmp<-dist.ml(gisaidall)
+locs <- meta_fig$country
+#locs<-meta_fig$division_exposure
+colors_list<-unique(locs)
+new<-data.frame(colors=colors_list,num=seq(1,length(colors_list)))
+samps_col<-rep(1,length(locs))
+for (j in 1:nrow(new)){
+  samps_col[locs==new[j,1]]<-new[j,2]
+}
+#mds<-cmdscale(tmp, eig=T, k=3)
+mds <- Rtsne(as.matrix(tmp),dims=3,is_distance = TRUE)
+par(mfrow=c(1,3))
+plot(table(locs),col=new[,2],cex.axis = 0.6,las=2,xlab="")
+#plot(mds$points,col=samps_col)
+plot(mds$Y,col=samps_col,pch=19)
+clust <- hclust(tmp)
+
+plot(clust,cex=.2)
+```
+
+Let's look at the \(k\) clusters resulting from cutting the tree for a few values of \(k\).
+
+```{r}
+clusts3 <- cutree(clust,k=3)
+```
+
+We take the sample IDs to get the countries for the samples in each cluster.
+
+```{r}
+samps3 <- names(clusts3)
+locs3 <- sapply(strsplit(samps3,"/"),function(x){return(x[1])})
+table(locs3,clusts3)
+```
+These 6 samples from Hong Kong and one from Hangzhou are off on their own. It also seems like cluster 2 is Euro-centric. All 30 of the Swiss samples are in cluster 2, and 70 out of 92 from the Netherlands. On the other hand, none of the Wuhan or Guangdong samples are in cluster 2.
+
+Let's see what this looks like with 5 clusters instead.
+
+```{r}
+clusts5 <- cutree(clust,k=5)
+
+samps5 <- names(clusts5)
+locs5 <- sapply(strsplit(samps5,"/"),function(x){return(x[1])})
+table(locs5,clusts5)
+```
+
+Now there are two "European" clusters, and it seems the US cases fit partly in the China cluster and partly in the first of the two European clusters. We would almost certainly want more clusters if we're using this to choose sequences to use in estimation, but this is easier to interpret.
+
+# Alternative distances
+
+Let's instead use a different distance.
+
+```{r}
+tmp <- dist.ml(gisaidall)
+clust <- hclust(tmp)
+
+plot(clust,cex=.2)
+```
+
+Now again with 5 clusters
+
+```{r}
+clusts5 <- cutree(clust,k=5)
+
+samps5 <- names(clusts5)
+locs5 <- sapply(strsplit(samps5,"/"),function(x){return(x[1])})
+table(locs5,clusts5)
+```
+
+
+
+
+
+
