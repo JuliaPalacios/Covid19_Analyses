@@ -3,7 +3,7 @@
 In this repository we report our analyses of publicly available genomic sequences of Human h-Cov19. All the data used here is provided by the laboratories that kindly shared information through GISAID.
 
 
-1. Data pre-processing. [Preprocess](https://github.com/JuliaPalacios/Covid19/blob/master/alignment/alignment.md)
+1. Data pre-processing. [Preprocess](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/alignment/alignment.md). Alignment file is called beast_aligned_fftnsi.fasta and deposited in your local data folder.
 
 
 
