@@ -25,6 +25,6 @@ In this repository we report our analyses of publicly available genomic sequence
 
 ## Contributors:
 
-James Johndrow
-Jaehee Kim 
 Julia Palacios (juliapr@stanford.edu)
+Jaehee Kim 
+James Johndrow
