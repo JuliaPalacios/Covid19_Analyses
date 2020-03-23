@@ -217,7 +217,7 @@ system('cat genbank_MN908947_ref_norm.fasta gisaid_seq_pp_beast.fasta > mafft_in
 ## =========================================================
 # The reference sequence occupies first 375 lines.
 # system('sed 1,375d mafft_out.fasta > beast_aligned.fasta')
-system('sed 1,375d mafft_out_fftnsi.fasta > beast_aligned_fftnsi.fasta')
+system('sed 1,375d mafft_out_fftnsi.fasta > aligned_fftnsi.fasta')
 
 
 
