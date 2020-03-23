@@ -23,5 +23,8 @@ In this repository we report our analyses of publicly available genomic sequence
 4. Diversity (Effective population size)
 
 
-# Contributors:
+## Contributors:
 
+James Johndrow
+Jaehee Kim 
+Julia Palacios (juliapr@stanford.edu)
