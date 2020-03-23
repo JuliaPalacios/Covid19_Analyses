@@ -15,7 +15,7 @@ Reference genome is downloaded from [**GenBank**](https://www.ncbi.nlm.nih.gov/g
 ## Preprocessing
 Done by running [quality_check.R](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/alignment/R/quality_check.R). Eventually, all these preprocessing will be a single bash script but for now, it's a sub-optimal hybrid of bash and R. :pensive: 
 
-1. [preprocessing.sh](https://github.com/JuliaPalacios/Covid19/blob/master/alignment/data/preprocessing.sh) script:
+1. [preprocessing.sh](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/alignment/data/preprocessing.sh) script:
 	* Format the strain name the same as nextstrain
 	* Remove short strain (default cut off = 15000 following nextstrain)
 	* Remove obvious duplicates
@@ -74,27 +74,6 @@ The alignment can also be done using **MUSCLE**.
 Visualize the alignment using [**MEGA**](https://www.megasoftware.net/), [**SEAVIEW**](http://doua.prabi.fr/software/seaview) or [**Base-By-Base**](https://4virology.net/virology-ca-tools/base-by-base/) (recommended by http://virological.org/).
 
 
-### Comments
-The necessity of reference genome for the case of multiple sequence alignment is not clear to me (a few COVID-19 papers used/mentioned it, and therefore, I'm using it here). From my understanding of MAFFT and MUSCLE, they don't align to a specific reference genome but rather optimize global pairwise alignment. I guess including the reference genome to the query file to be aligned is enough? Need to think about it more...   
-
-MAFFT has an *--add* option to align to existing sequences but not 100% sure if this is what we want.
-
-Most of papers state:
->Initial alignment was performed using the online multiple alignment program (MAFFT v.7) **with further manual editing**
-
-but not sure what this "manual editing" is... 
-
-### Thoughts
-When doing BEAST, number of samples. From [this post](http://virological.org/t/phylodynamic-analysis-176-genomes-6-mar-2020/356):
-> Because the coalescent model assumes that we have a small random sample from a large population, only a single representative genome of any known epidemiologically-linked transmission clusters was included. This leaves 86 genomes in the analysis.
-
-So maybe we need to do some kind of cluster/network analysis to select representative sample from each region/cluster for our analysis?
 
 
-
-### To-do
-- [ ] currently, FFT-NS-2 (fast but rough) option was used for MAFFT but try more accurate (but slow) method.
-- [ ] write a script to combine all these later.
-- [ ] compare the alignements from MAFFT and MUSCLE to be sure.
-- [ ] add relevant references.
 
