@@ -13,7 +13,7 @@ Reference genome is downloaded from [**GenBank**](https://www.ncbi.nlm.nih.gov/g
 
 
 ## Preprocessing
-Done by running [quality_check.R](https://github.com/JuliaPalacios/Covid19/blob/master/alignment/R/quality_check.R). Eventually, all these preprocessing will be a single bash script but for now, it's a sub-optimal hybrid of bash and R. :pensive: 
+Done by running [quality_check.R](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/alignment/R/quality_check.R). Eventually, all these preprocessing will be a single bash script but for now, it's a sub-optimal hybrid of bash and R. :pensive: 
 
 1. [preprocessing.sh](https://github.com/JuliaPalacios/Covid19/blob/master/alignment/data/preprocessing.sh) script:
 	* Format the strain name the same as nextstrain
