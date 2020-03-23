@@ -8,9 +8,7 @@
 
 rm(list=ls())
 
-#base.dir <- '/Users/jaehee/Desktop/Coronavirus/github/'
-#base.dir <- '~/Documents/Covid19/'
-base.dir <- '/data1/GitHub/Covid19/'
+base.dir <- '/GitHub/Covid19_Analyses/'
 
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
 
@@ -69,49 +67,6 @@ system(paste("bash ./preprocessing.sh ", gisaid.all.f,
 # meta data after first pre-processing
 meta.pp1 <- read.delim('meta_gisaid_tmp.txt', header=FALSE, sep='\t', as.is=TRUE,
                        col.names=c('strain', 'gisaid_epi_isl', 'date'))
-
-##Jaehee? Just checking. This script only removed those with length<1500 right?
-# => yes, correct!
-
-# ##summary stats to find duplicates, based on name alone
-# alldata<-alldata[seq(1,length(alldata))[lengthVec>15000]]
-# names_vec<-names(alldata)
-
-#some correction by hand
-# names_vec[names_vec=="hCoV-19/Switzerland/GE062072020|EPI_ISL_415706|2020-03-06"]<-"hCoV-19/Switzerland/GE06207/2020|EPI_ISL_415706|2020-03-06"
-# names_vec[names_vec=="hCoV-19/Mexico/CDMX/InDRE_01/2020|EPI_ISL_412972|2020-02-27"]<-"hCoV-19/Mexico/CDMX/2020|EPI_ISL_412972|2020-02-27"
-# names_vec[names_vec=="hCoV-19/Japan/TK/20-31-3/2020|EPI_ISL_413459|2020-02-20"]<-"hCoV-19/Japan/TK/2020|EPI_ISL_413459|2020-02-20"
-# names_vec[names_vec=="hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31"]<-"hCoV-19/Wuhan/Hu-1/2019|EPI_ISL_402125|2019-12-31"
-# names_vec[names_vec=="hCoV-19/Netherlands/ZuidHolland/31/2020|EPI_ISL_415535|2020-03-12"]<-"hCoV-19/Netherlands/ZuidHolland31/2020|EPI_ISL_415535|2020-03-12"
-# names_vec[names_vec=="hCoV-19/Netherlands/ZuidHolland/29/2020|EPI_ISL_415533|2020-03-09"]<-"hCoV-19/Netherlands/ZuidHolland29/2020|EPI_ISL_415533|2020-03-09"
-# names_vec[names_vec=="hCoV-19/Netherlands/ZuidHolland/28/2020|EPI_ISL_415532|2020-03-09"]<-"hCoV-19/Netherlands/ZuidHolland28/2020|EPI_ISL_415532|2020-03-09"
-# names_vec[names_vec=="hCoV-19/Netherlands/ZuidHolland/27/2020|EPI_ISL_415531|2020-03-09"]<-"hCoV-19/Netherlands/ZuidHolland27/2020|EPI_ISL_415531|2020-03-09"
-# names_vec[names_vec=="hCoV-19/Netherlands/ZuidHolland/26/2020|EPI_ISL_415530|2020-03-09"]<-"hCoV-19/Netherlands/ZuidHolland26/2020|EPI_ISL_415530|2020-03-09"
-# names_vec[names_vec=="hCoV-19/Netherlands/ZuidHolland/25/2020|EPI_ISL_415529|2020-03-09"]<-"hCoV-19/Netherlands/ZuidHolland25/2020|EPI_ISL_415529|2020-03-09"
-# names_vec[names_vec=="hCoV-19/Netherlands/Utrecht/18/2020|EPI_ISL_415527|2020-03-12"]<-"hCoV-19/Netherlands/Utrecht18/2020|EPI_ISL_415527|2020-03-12"
-# names_vec[names_vec=="hCoV-19/Netherlands/Utrecht/17/2020|EPI_ISL_415526|2020-03-10"]<-"hCoV-19/Netherlands/Utrecht17/2020|EPI_ISL_415526|2020-03-10"
-# names_vec[names_vec=="hCoV-19/Netherlands/Utrecht/17/2020|EPI_ISL_415526|2020-03-10"]<-"hCoV-19/Netherlands/Utrecht17/2020|EPI_ISL_415526|2020-03-10"
-
-
-#fastafile <- as.phyDat(alldata)
-#dm <- dist.ml(fastafile)
-#length(names_vec)
-#length(unique(names_vec))
-#No obvious duplicates, now by name and location
-
-#location<-unlist(strsplit(names_vec[1],split="/",fixed=TRUE))[2]
-#for (j in 2:length(names_vec)){
-#  location<-c(location,unlist(strsplit(names_vec[j],split="/",fixed=TRUE))[2])
-#}
-#plot(sort(table(location)),cex.axis = 0.6,las=2,xlab="",ylab="Number of samples")
-
-# 
-# name<-unlist(strsplit(names_vec[1],split="/",fixed=TRUE))[3]
-# for (j in 2:length(names_vec)){
-#   name<-c(name,unlist(strsplit(names_vec[j],split="/",fixed=TRUE))[3])
-# }
-
-#length(unique(meta.pp1[,2]))
 
 
 ## ===================================
@@ -265,8 +220,6 @@ system('cat genbank_MN908947_ref_norm.fasta gisaid_seq_pp_beast.fasta > mafft_in
 system('sed 1,375d mafft_out_fftnsi.fasta > beast_aligned_fftnsi.fasta')
 
 
-####Figures code
-#gisaid_meta_pp.tsv
 
 
 
