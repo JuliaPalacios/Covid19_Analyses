@@ -23,6 +23,15 @@ In this repository we report our analyses of publicly available genomic sequence
 4. Diversity (Effective population size)
 
 
+
+
+5. Comparative Analyses
+
+
+
+6. Comparison to Surveillance Data
+
+
 ## Contributors:
 
 Julia Palacios (juliapr@stanford.edu)
