@@ -1,4 +1,4 @@
-## March 18, 2020
+## March 26, 2020
 ## This script is to read raw fasta file from GISAID and do quality check,
 #  removes any duplicates or entries that don't meet the quality standard. 
 
@@ -8,11 +8,12 @@
 
 rm(list=ls())
 
-base.dir <- '/GitHub/Covid19_Analyses/'
+#base.dir <- '~/Documents/Covid_Analysis/'
+base.dir <- '/GitHub/Covid_Analyses/'
 
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
 
-## First, download necessary file from nextstrain repo
+## Automatically downloads necessary files from nextstrain repo
 download.flag <- T
 
 ns.dir <- paste(data.dir, 'nextstrain/', sep='') 
@@ -25,9 +26,9 @@ if (download.flag) {
     system('curl https://raw.githubusercontent.com/nextstrain/ncov/master/config/exclude.txt -o exclude.txt')
 }
 
-setwd(data.dir)
+##Make sure you have these two files in the folder
 
-gisaid.all.f <- paste(data.dir, 'gisaid_cov2020_sequences_hc.fasta', sep='')
+gisaid.all.f <- paste(data.dir, 'gisaid_cov2020_sequences.fasta', sep='')
 genbank.ref.f <- paste(data.dir, 'genbank_MN908947_ref_norm.fasta', sep='')
 
 ###Summary statistics of sequence length
@@ -41,7 +42,6 @@ for (j in 1:length(alldata)){
 
 ##Out of the original
 length(alldata)
-#[1] 672
 hist(lengthVec)
 # This number have length<5000
 sum(lengthVec<5000)
@@ -59,7 +59,7 @@ plot(sort(lengthVec))
 # 1. format the strain name the same as nextstrain
 # 2. remove short strain (default cut off = 15000 following nextstrain)
 # 3. remove obvious duplicates
-
+setwd(data.dir)
 min.len <- 15000
 system(paste("bash ./preprocessing.sh ", gisaid.all.f, 
              ' ', min.len, sep=''))
