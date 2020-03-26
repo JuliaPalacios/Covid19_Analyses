@@ -204,7 +204,7 @@ system('cat genbank_MN908947_ref_norm.fasta gisaid_seq_pp_beast.fasta > mafft_in
 # uncomment below to run mafft
 
 # default method FFT-NS-2 (fast; progressive method):
-# system('mafft --thread -1 mafft_in.fasta > mafft_out.fasta')
+system('mafft --thread -1 mafft_in.fasta > mafft_out.fasta')
 
 # FFT-NS-i (iterative refinement method; two cycles only):
 # system('fftnsi --thread -1 mafft_in.fasta > mafft_out_fftnsi.fasta')
