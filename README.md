@@ -30,3 +30,5 @@ Julia Palacios (juliapr@stanford.edu)
 Jaehee Kim 
 
 James Johndrow
+
+Vladimir Minin
