@@ -1,0 +1,51 @@
+##Coronavirus
+
+##Preliminary molecular clock check and summary stats
+
+
+rm(list=ls())
+library(phylodyn)
+library(ape)
+library(phangorn)
+library(lubridate)
+
+base.dir <- '~/Documents/Covid_Analysis/'
+
+data.dir <- paste(base.dir, 'alignment/data/', sep='')
+
+##Sequence data (aligned already)
+gisaid.aligned <- paste(data.dir, 'aligned.fasta', sep='')
+gisaidall <- read.FASTA(gisaid.aligned)
+
+meta_fig <- read.delim(paste(data.dir, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+countr<-length(unique(meta_fig$country))
+total.sam<-nrow(meta_fig)
+main1<-paste("A total of ",total.sam," from ",countr, "countries --",date(),collapse="")
+plot(sort(table(meta_fig$country)),cex.axis = 0.6,las=2,xlab="",ylab="Number of samples",main=main1)
+
+dates_samp<-ymd(meta_fig$date)
+plot(sort(table(dates_samp)),cex.axis = 0.4,las=2,xlab="",ylab="Number of samples",main="Sequences by date")
+
+fastafile <- as.phyDat(gisaidall)
+#Pairwise number of differences
+hamming<-as.matrix(dist.hamming(fastafile))*as.numeric(summary(gisaidall)[1])
+par(mfrow=c(1,2))
+plot(table(hamming)/2,xlab="Hamming Distance",ylab="Frequency")
+
+root<-"Wuhan-Hu-1/2019"
+ref<-which(meta_fig$strain==root)
+plot(table(hamming[ref,]),ylab="Frequency",xlab="Hamming distance to reference")
+plot(dates_samp-dates_samp[ref],hamming[ref,],ylab="Distance to reference",xlab="Time difference (Days)")
+x<-dates_samp-dates_samp[ref]
+reg<-lm(hamming[ref,]~-1+x)
+summary(reg)
+abline(reg)
+tocheck<-which(hamming[ref,]>quantile(hamming[ref,],.995))
+tocheck
+for (j in 1:length(tocheck)){
+  text(x[tocheck[j]],hamming[ref,tocheck[j]]+0.5,meta_fig[tocheck[j],1],cex=.5)
+}
+
