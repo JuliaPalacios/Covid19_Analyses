@@ -8,7 +8,6 @@
 
 rm(list=ls())
 
-#base.dir <- '~/Documents/Covid_Analysis/'
 base.dir <- '/GitHub/Covid_Analyses/'
 
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
@@ -27,9 +26,8 @@ if (download.flag) {
 }
 
 ##Make sure you have these two files in the folder
-
+# "gisaid_cov2020_sequences.fasta" and "genbank_MN908947.fasta"
 gisaid.all.f <- paste(data.dir, 'gisaid_cov2020_sequences.fasta', sep='')
-genbank.ref.f <- paste(data.dir, 'genbank_MN908947_ref_norm.fasta', sep='')
 
 ###Summary statistics of sequence length
 library("ape")
@@ -47,8 +45,6 @@ hist(lengthVec)
 sum(lengthVec<5000)
 hist(lengthVec[lengthVec>5000])
 plot(sort(lengthVec))
-
-## Add in date field
 
 ## Eventually, all these preprocessing will be a single bash script
 #  but for now, it's a sub-optimal hybrid of bash and R... =( 
@@ -91,23 +87,23 @@ system(paste("sed '/#/d; /^$/d' ", ns.dir, 'exclude.txt', " > ",
 exclude.seq <- read.table(file=paste(data.dir, 'exclude_ns.txt', sep=''),
                           header=FALSE, as.is=TRUE, col.names='strain')
 to.include.1 <-  !(meta.pp1$strain %in% exclude.seq$strain)
-print(paste('Number of sequences NOT in the exclude.txt is', sum(to.include.1)))
+cat(paste('\nNumber of sequences NOT in the exclude.txt is', sum(to.include.1), '\n'))
 
 ## Next remove strains NOT in nextstrain's metadata.tsv file 
 # nextstrain's metadata file
 ns.meta.data <- read.delim(paste(ns.dir, 'metadata.tsv', sep=''), 
                            header=TRUE, as.is=TRUE, sep='\t')
 to.include.2 <- meta.pp1$gisaid_epi_isl %in% ns.meta.data$gisaid_epi_isl
-print(paste('Number of sequences in the metadata.tsv is', sum(to.include.2)))
+cat(paste('Number of sequences in the metadata.tsv is', sum(to.include.2), '\n'))
 
 ## Finally, remove sequences with non-precise date.
 to.include.3 <- !is.na(strptime(meta.pp1$date, format='%Y-%m-%d'))
-print(paste('Number of sequences with precise date is', sum(to.include.3)))
+cat(paste('Number of sequences with precise date is', sum(to.include.3), '\n'))
 
 ## Final strains to be included
 to.include <- to.include.1 & to.include.2 & to.include.3
 n.tot <- sum(to.include)
-print(paste('Final number of sequences after pre-processing is', n.tot))
+cat(paste('\nFinal number of sequences after pre-processing is', n.tot, '\n'))
 
 
 ## ===================================
@@ -158,13 +154,6 @@ for (i in 1:length(header.lines)) {
 
 fasta.list.order <- fasta.list[fasta.ind]
 
-# check!
-for (i in 1:length(fasta.list.order)) {
-    tmp <- fasta.list.order[[i]]
-    tmp.length <- sum(sapply(2:length(tmp), function(j) nchar(tmp[j])))
-    stopifnot(ns.meta.data[ns.to.include, 'length'][i] == tmp.length)
-}
-
 fasta.list.order.beast <- list()
 for (i in 1:length(fasta.list.order)) {
     tmp <- fasta.list.order[[i]]
@@ -194,7 +183,18 @@ system('rm *tmp*')
 ## ===================================
 # Add normalized GenBank reference sequence to the GISAID fasta file
 # For the GenBank sequence normalization, see alignment.md in github.
-system('cat genbank_MN908947_ref_norm.fasta gisaid_seq_pp_beast.fasta > mafft_in.fasta')
+
+# Check if the reference sequence is already in the fasta file
+# GenBank: MN908947.3
+# GISAID: Wuhan-Hu-1/2019	EPI_ISL_402125
+# If the reference sequence is already in the GISAID fasta file, no need to add.
+
+if (!('EPI_ISL_402125' %in% meta.to.write$gisaid_epi_isl)) {
+    system('cat genbank_MN908947.fasta gisaid_seq_pp_beast.fasta > mafft_in.fasta')
+    system('rm gisaid_seq_pp_beast.fasta')
+} else {
+    system('mv gisaid_seq_pp_beast.fasta mafft_in.fasta')
+}
 
 
 ## ===================================
@@ -204,7 +204,7 @@ system('cat genbank_MN908947_ref_norm.fasta gisaid_seq_pp_beast.fasta > mafft_in
 # uncomment below to run mafft
 
 # default method FFT-NS-2 (fast; progressive method):
-system('mafft --thread -1 mafft_in.fasta > mafft_out.fasta')
+# system('mafft --thread -1 mafft_in.fasta > mafft_out.fasta')
 
 # FFT-NS-i (iterative refinement method; two cycles only):
 # system('fftnsi --thread -1 mafft_in.fasta > mafft_out_fftnsi.fasta')
@@ -215,9 +215,22 @@ system('mafft --thread -1 mafft_in.fasta > mafft_out.fasta')
 ## =========================================================
 ## Remove reference sequence from MAFFT alignment for BEAST
 ## =========================================================
-# The reference sequence occupies first 1,515 lines.
-#For the whole alignment I will remove it because it is duplicated
-system('sed 1,515d mafft_out.fasta > aligned.fasta')
+# If the reference sequence was added to the mafft_in.fasta, remove it 
+# from the output file for BEAST analysis. 
+
+n.ref <- as.integer(system("grep 'MN908947' mafft_out.fasta | wc -l", intern=TRUE))
+if (n.ref == 1) {
+    n.lines <- as.integer(system("grep -n -m2 '>' mafft_out.fasta | tail -1 | cut -d : -f 1",
+                                 intern=TRUE))
+    system(paste('sed 1,', n.lines-1, 'd mafft_out.fasta > aligned.fasta', sep=''))
+} else if (n.ref == 0) {
+    system('cp mafft_out.fasta aligned.fasta')
+} else {
+    stop('error')
+}
+
+message('\nFinal pre-processed and aligned sequence file for BEAST analysis is aligned.fasta')
+
 
 
 
