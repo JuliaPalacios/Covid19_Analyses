@@ -49,6 +49,7 @@ ref<-which(meta_fig$strain==root)
 plot(table(hamming[ref,]),ylab="Frequency",xlab="Hamming distance to reference")
 ```
 
+A rought estimate of the mutation rate can be obtained by regressing genetic divergence on time divergence. This estimate ignores correlation among samples, population structure and pairwise information. A more reliable estimate can be found in the mutation section.
 
 ```{r,echo=FALSE}
 par(mfrow=c(1,1))
