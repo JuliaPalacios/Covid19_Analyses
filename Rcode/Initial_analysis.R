@@ -27,7 +27,7 @@ main1<-paste("A total of ",total.sam," from ",countr, "countries --",date(),coll
 plot(sort(table(meta_fig$country)),cex.axis = 0.6,las=2,xlab="",ylab="Number of samples",main=main1)
 
 dates_samp<-ymd(meta_fig$date)
-plot(sort(table(dates_samp)),cex.axis = 0.4,las=2,xlab="",ylab="Number of samples",main="Sequences by date")
+plot(table(dates_samp),cex.axis = 0.4,las=2,xlab="",ylab="Number of samples",main="Sequences by date")
 
 fastafile <- as.phyDat(gisaidall)
 #Pairwise number of differences
