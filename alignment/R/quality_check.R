@@ -215,9 +215,9 @@ system('mafft --thread -1 mafft_in.fasta > mafft_out.fasta')
 ## =========================================================
 ## Remove reference sequence from MAFFT alignment for BEAST
 ## =========================================================
-# The reference sequence occupies first 375 lines.
-# system('sed 1,375d mafft_out.fasta > beast_aligned.fasta')
-system('sed 1,375d mafft_out_fftnsi.fasta > aligned_fftnsi.fasta')
+# The reference sequence occupies first 1,515 lines.
+#For the whole alignment I will remove it because it is duplicated
+system('sed 1,515d mafft_out.fasta > aligned.fasta')
 
 
 
