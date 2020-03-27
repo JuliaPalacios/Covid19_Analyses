@@ -26,9 +26,8 @@ if (download.flag) {
 }
 
 ##Make sure you have these two files in the folder
-
+# "gisaid_cov2020_sequences.fasta" and "genbank_MN908947.fasta"
 gisaid.all.f <- paste(data.dir, 'gisaid_cov2020_sequences.fasta', sep='')
-genbank.ref.f <- paste(data.dir, 'genbank_MN908947_ref_norm.fasta', sep='')
 
 ###Summary statistics of sequence length
 library("ape")
