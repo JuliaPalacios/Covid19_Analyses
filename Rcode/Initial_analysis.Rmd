@@ -66,7 +66,41 @@ for (j in 1:length(tocheck)){
 }
 ```
 
+To explore regions and number of polymorphic sites
+```{r,echo=FALSE}
+data.matrix<-as.character(as.matrix(fastafile))
+ref.data<-data.matrix[ref,]
+#subset only where ref has information
+sum(ref.data!="-")
+data.matrix<-data.matrix[,ref.data!="-"]
+binary.matrix<-matrix(0,nrow=nrow(data.matrix),ncol=ncol(data.matrix))
+divergence<-rep(0,ncol(data.matrix))
+entropyl<-c(0,1)
+library(entropy)
+#Convert to binary matrix when possible
+for (j in 1:ncol(data.matrix)){
+  div<-table(data.matrix[,j])
+  divergence[j]<-(sum(names(div)=="a")>0)+(sum(names(div)=="c")>0)+(sum(names(div)=="t")>0)+(sum(names(div)=="g")>0)
+  if (divergence[j]>2){
+    entropyl<-rbind(entropyl,c(j,entropy(div)))}
+}
 
+divsum<-table(divergence)
+plot(divergence,pch=19,col="blue")
+```
+
+
+Of the total `r ncol(data.matrix)` sites in the reference sequence, `r divsum[1]` are monomorphic sites, `r divsum[2]` are binary, and only `r divsum[3]+divsum[4]` have 3 or 4 types. Largest entropy is observed is in the first `r max(entropyl[entropyl[,1]>.3,1][entropyl[entropyl[,1]>.3,1]<1000])` bases and the last `r min(entropyl[entropyl[,1]>.3,1][entropyl[entropyl[,1]>.3,1]>20000])` bases.  
+
+<!-- gridlength<-100 -->
+<!-- bases<-seq(1,ncol(data.matrix),by=100) -->
+<!-- ssites<-rep(0,length(bases)-1) -->
+<!-- for (j in 1:(length(bases)-1)){ -->
+<!--   ssites[j]<- -->
+
+<!-- } -->
+<!-- ``` -->
 #Reference:
 
 Rambaut, Andrew, Tommy T. Lam, Luiz Max Carvalho, and Oliver G. Pybus. "Exploring the temporal structure of heterochronous sequences using TempEst (formerly Path-O-Gen)." Virus evolution 2, no. 1 (2016).
+
