@@ -1,8 +1,7 @@
 ---
-title: "Initial_Analysis"
-output: html_document
+title: "Preliminary Molecular Clock Check and Summary Statistics"
+output: pdf_document
 ---
-##Preliminary molecular clock check and summary stats
 
 ```{r,echo=FALSE}
 rm(list=ls())
@@ -26,19 +25,32 @@ countr<-length(unique(meta_fig$country))
 total.sam<-nrow(meta_fig)
 main1<-paste("A total of ",total.sam," from ",countr, "countries --",date(),collapse="")
 plot(sort(table(meta_fig$country)),cex.axis = 0.6,las=2,xlab="",ylab="Number of samples",main=main1)
+```
 
+
+```{r,echo=FALSE}
 dates_samp<-ymd(meta_fig$date)
 plot(table(dates_samp),cex.axis = 0.4,las=2,xlab="",ylab="Number of samples",main="Sequences by date")
+```
 
+
+```{r,echo=FALSE}
 fastafile <- as.phyDat(gisaidall)
 #Pairwise number of differences
 hamming<-as.matrix(dist.hamming(fastafile))*as.numeric(summary(gisaidall)[1])
-par(mfrow=c(1,2))
-plot(table(hamming)/2,xlab="Hamming Distance",ylab="Frequency")
 
+plot(table(hamming)/2,xlab="Hamming Distance",ylab="Frequency")
+```
+
+
+```{r,echo=FALSE}
 root<-"Wuhan-Hu-1/2019"
 ref<-which(meta_fig$strain==root)
 plot(table(hamming[ref,]),ylab="Frequency",xlab="Hamming distance to reference")
+```
+
+
+```{r,echo=FALSE}
 par(mfrow=c(1,1))
 x<-dates_samp-dates_samp[ref]
 reg<-lm(hamming[ref,]~-1+x)
@@ -52,3 +64,8 @@ for (j in 1:length(tocheck)){
   text(x[tocheck[j]],hamming[ref,tocheck[j]]+0.5,meta_fig[tocheck[j],1],cex=.5)
 }
 ```
+
+
+#Reference:
+
+Rambaut, Andrew, Tommy T. Lam, Luiz Max Carvalho, and Oliver G. Pybus. "Exploring the temporal structure of heterochronous sequences using TempEst (formerly Path-O-Gen)." Virus evolution 2, no. 1 (2016).
