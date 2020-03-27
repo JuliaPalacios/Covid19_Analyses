@@ -1,8 +1,10 @@
-##Coronavirus
-
+---
+title: "Initial_Analysis"
+output: html_document
+---
 ##Preliminary molecular clock check and summary stats
 
-
+```{r,echo=FALSE}
 rm(list=ls())
 library(phylodyn)
 library(ape)
@@ -10,7 +12,6 @@ library(phangorn)
 library(lubridate)
 
 base.dir <- '~/Documents/Covid_Analysis/'
-
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
 
 ##Sequence data (aligned already)
@@ -38,14 +39,16 @@ plot(table(hamming)/2,xlab="Hamming Distance",ylab="Frequency")
 root<-"Wuhan-Hu-1/2019"
 ref<-which(meta_fig$strain==root)
 plot(table(hamming[ref,]),ylab="Frequency",xlab="Hamming distance to reference")
-plot(dates_samp-dates_samp[ref],hamming[ref,],ylab="Distance to reference",xlab="Time difference (Days)")
+par(mfrow=c(1,1))
 x<-dates_samp-dates_samp[ref]
 reg<-lm(hamming[ref,]~-1+x)
 summary(reg)
+
+plot(dates_samp-dates_samp[ref],hamming[ref,],ylab="Distance to reference",xlab="Time difference (Days)",main=paste("A total of ",round(reg$coefficients[[1]]*28,2)," of mutations per month",sep=""))
 abline(reg)
 tocheck<-which(hamming[ref,]>quantile(hamming[ref,],.995))
 tocheck
 for (j in 1:length(tocheck)){
   text(x[tocheck[j]],hamming[ref,tocheck[j]]+0.5,meta_fig[tocheck[j],1],cex=.5)
 }
-
+```
