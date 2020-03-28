@@ -1,0 +1,12 @@
+name	start	end	codon_start	protein_id	product	structure	note
+5'UTR	1	265	NA	NA	NA	No	NA
+orf1ab	266	21555	1	QHD43415.1	orf1ab polyprotein	No	pp1ab; translated by -1 ribosomal frameshift
+S	21563	25384	1	QHD43416.1	surface glycoprotein	Yes	structural protein
+ORF3a	25393	26220	1	QHD43417.1	ORF3a protein	No	NA
+E	26245	26472	1	QHD43418.1	envelope protein	Yes	structural protein; E protein
+M	26523	27191	1	QHD43419.1	membrane glycoprotein	Yes	structural protein
+ORF6	27202	27387	1	QHD43420.1	ORF6 protein	No	NA
+ORF7a	27394	27759	1	QHD43421.1	ORF7a protein	No	NA
+ORF8	27894	28259	1	QHD43422.1	ORF8 protein	No	NA
+N	28274	29533	1	QHD43423.2	nucleocapsid phosphoprotein	Yes	structural protein
+ORF10	29558	29674	1	QHI42199.1	ORF10 protein	No	NA
