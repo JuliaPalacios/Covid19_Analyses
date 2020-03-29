@@ -41,3 +41,11 @@ Jaehee Kim
 James Johndrow
 
 Vladimir Minin
+
+## Other Data sources:
+https://covidtracking.com/data/ 
+
+https://ourworldindata.org/
+
+https://github.com/nytimes/covid-19-data
+
