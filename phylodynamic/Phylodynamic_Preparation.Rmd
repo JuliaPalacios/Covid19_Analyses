@@ -1,0 +1,81 @@
+---
+title: "Phylodynamic_Preparation"
+output: pdf_document
+---
+
+
+```{r,echo=FALSE}
+rm(list=ls())
+library(phylodyn)
+library(ape)
+library(phangorn)
+library(lubridate)
+
+base.dir <- '~/Documents/Covid_Analysis/'
+#base.dir <- '~/Desktop/Coronavirus/github_julia/Covid19/'
+data.dir <- paste(base.dir, 'alignment/data/', sep='')
+
+## GenBank reference genome meta data
+ref.meta <- read.delim('../alignment/data/GenBank/genbank_MN908947_meta.txt', header=T, as.is=T, sep='\t')
+
+##Sequence data (aligned already)
+gisaid.aligned <- paste(data.dir, 'aligned.fasta', sep='')
+gisaidall <- read.FASTA(gisaid.aligned)
+
+meta.fig <- read.delim(paste(data.dir, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+```
+
+We will analyze USA data. We will remove the sites that have missing values in more than 20\% of the samples and remove the samples that have more than 10\% of its data missing.
+
+```{r,echo=FALSE}
+chosen<-"USA"
+fastafile <- as.phyDat(gisaidall)
+data.matrix<-as.character(as.matrix(fastafile))
+root<-"Wuhan-Hu-1/2019"
+ref<-which(meta.fig$strain==root)
+ref.data<-data.matrix[ref,]
+data.matrix<-data.matrix[meta.fig$country==chosen,]
+
+missing_data<-rep(0,ncol(data.matrix))
+tot.obs<-nrow(data.matrix)
+for (j in 1:ncol(data.matrix)){
+  missing_data[j]<-tot.obs-sum(data.matrix[,j]=="a")-sum(data.matrix[,j]=="c")-sum(data.matrix[,j]=="t")-sum(data.matrix[,j]=="g")
+}
+sum(missing_data>nrow(data.matrix)/5)
+tolerance<-nrow(data.matrix)/5
+ref.data<-ref.data[missing_data<=nrow(data.matrix)/5]
+data.matrix<-data.matrix[,missing_data<=nrow(data.matrix)/5]
+dim(data.matrix)
+data.matrix<-rbind(data.matrix,ref.data)
+```
+
+```{r,echo=FALSE}
+## ============= strain names ===============
+meta.to.write <- meta.fig$strain_beast[c(which(meta.fig$country==chosen), ref)]
+
+seqinr::write.fasta(sequences=as.list(data.frame(t(data.matrix))), 
+                    names=meta.to.write,
+                    file.out=paste(base.dir, 'alignment/data/fasta',chosen,'.fasta', sep=''),
+                    nbchar=60)
+
+
+```
+
+```{r,echo=FALSE}
+##Remove samples that have missing data
+#missing_data<-rep(0,nrow(data.matrix))
+#tot.obs<-ncol(data.matrix)
+# for (j in 1:nrow(data.matrix)){
+#   missing_data[j]<-tot.obs-sum(data.matrix[j,]=="a")-sum(data.matrix[j,]=="c")-sum(data.matrix[j,]=="t")-sum(data.matrix[j,]=="g")
+# }
+# summary(missing_data)
+# sum(missing_data>tot.obs/10)
+
+# tmp <- dist.hamming(mi,ratio=FALSE)
+
+```
+
+
