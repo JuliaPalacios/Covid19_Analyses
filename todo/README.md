@@ -17,8 +17,13 @@ Pavel Sagulenko,1 Vadim Puller,1,2,3 and Richard A. Neher1,2,3,*,†. As a first
 8. MCCT / Average Phylogenies. We need a script that automatically generates the MCCT with TreeAnnotator from *.trees file output from BEAST.
 9. Preferential Sampling. It would be great to accompany all Ne estimations with BNPR_PS.
 10. We want to segment genomic regions to see if we can detect some signatures of selection. I would start with USA data only and compare estimations along the genome.
+   - Jaehee
 11. Comparative Analyses. Can we compare with other Coronavirus data? What is available in Gisaid?
+   - Jaehee
 12. Surveillance. We want to relate our Ne estimates with actual number of infections. Can someone download a good source of surveillance data? Number of positive and negative tests, number of reported cases, number of hospitalizations? We want a script that compares Ne estimates to surveillance data per country.
+   - Jaehee
+13. Inference of recombination rate and detection of recombination events. 
+   - Jaehee
 
 
 
