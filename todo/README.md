@@ -1,7 +1,7 @@
 # Covid-19 Genetic Epidemiology Analyses TODO list
 
 
-- [ ] 1. Access. Everyone should request access to Gisaid.org and have access to viral sequences directly. We will take turns in downloading the data and running quality_check.R. 
+- [ ] 1. Access. Everyone should request access to Gisaid.org and have access to viral sequences directly. We will take turns in downloading the data and running [quality_check.R](https://bit.ly/3bIECbE). 
 
 - [ ] 2. Software. Everyone should install 
    1. [BEAST](https://beast.community/) 
