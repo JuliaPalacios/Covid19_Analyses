@@ -22,7 +22,7 @@ Pavel Sagulenko,1 Vadim Puller,1,2,3 and Richard A. Neher1,2,3,*,†. As a first
    - Jaehee
 12. Surveillance. We want to relate our Ne estimates with actual number of infections. Can someone download a good source of surveillance data? Number of positive and negative tests, number of reported cases, number of hospitalizations? We want a script that compares Ne estimates to surveillance data per country.
    - Jaehee
-13. Inference of recombination rate and detection of recombination events. 
+[ ] 13. Inference of recombination rate and detection of recombination events. 
    - Jaehee
 
 
