@@ -10,10 +10,10 @@
    TreeAnnotator 
    
 - [ ] 3. Fast code for alignment. In quality_check.R, we have used mafft for alignment but as you will see It takes too long. We need to try muscle or clustal to see if it provides a faster alternative.
-   - 
+   - TBD
 
 - [ ] 4. The standard Coalescent model assumes a random sample from the populations. Our samples have population structure (epiclusters). It is better to generate results country-by-country or by epiclusters. One challenge is to find these epiclusters. James started a clustering and there is a movie (with pink background unfortunately). Is there a way to make this "prettier"?
-   - 
+   - TBD
 
 - [ ] 5. Simulation Study. It is not clear how to subsample the whole dataset to have a representative "worldwide" analysis. We want to start with a simulation. We want to simulate two samples of sizes n1 and n2 from a population from a constant trajectory and from a population with exponential growth. What is the optimal assignment of n1 and n2 such that n1+n2=50 (for example) in order to estimate the global population size of the number of infections?
    - 
@@ -23,16 +23,16 @@ Pavel Sagulenko,1 Vadim Puller,1,2,3 and Richard A. Neher1,2,3,*,†. As a first
    - 
 
 - [ ] 7. Fast initial tree estimation. We want to develop a fast Bayesian EM type of inference. Sequential UPGMA seems to be partially implemented in R. We need someone who can test or implement a version of Sequential UPGMA or Sequential NNI clustering or simply Sequential hierarchical clustering. This will be an initial estimate that can sequentially be optimized according to the posterior distribution. 
-   - 
+   - TBD
 
 - [ ] 8. Estimation of Mutation rate. BEAST *.log files prints joint posterior distribution. We need to have a script that reads all *.log files available in a folder and plots all boxplots of mutation rate per country. 
-   -
+   - TBD
 
 - [ ] 9. MCCT / Average Phylogenies. We need a script that automatically generates the MCCT with TreeAnnotator from *.trees file output from BEAST.
-   -
+   - TBD
 
 - [ ] 10. Preferential Sampling. It would be great to accompany all Ne estimations with BNPR_PS.
-   -
+   - TBD
 
 - [ ] 11. We want to segment genomic regions to see if we can detect some signatures of selection. I would start with USA data only and compare estimations along the genome.
    - Jaehee
