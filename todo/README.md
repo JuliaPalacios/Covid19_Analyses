@@ -4,10 +4,10 @@
 - [ ] 1. Access. Everyone should request access to Gisaid.org and have access to viral sequences directly. We will take turns in downloading the data and running quality_check.R. 
 
 - [ ] 2. Software. Everyone should install 
-   - [BEAST](https://beast.community/) 
-   - [phylodyn](https://github.com/mdkarcher/phylodyn)
-   - [Tracer](https://beast.community/tracer)
-   - TreeAnnotator 
+   * [BEAST](https://beast.community/) 
+   * [phylodyn](https://github.com/mdkarcher/phylodyn)
+   * [Tracer](https://beast.community/tracer)
+   * TreeAnnotator 
    
 - [ ] 3. Fast code for alignment. In quality_check.R, we have used mafft for alignment but as you will see It takes too long. We need to try muscle or clustal to see if it provides a faster alternative.
    - TBD
