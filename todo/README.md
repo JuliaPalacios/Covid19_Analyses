@@ -16,7 +16,7 @@
    - TBD
 
 - [ ] 5. Simulation Study. It is not clear how to subsample the whole dataset to have a representative "worldwide" analysis. We want to start with a simulation. We want to simulate two samples of sizes n1 and n2 from a population from a constant trajectory and from a population with exponential growth. What is the optimal assignment of n1 and n2 such that n1+n2=50 (for example) in order to estimate the global population size of the number of infections?
-   - TBD
+   - Mackenzie
 
 - [ ] 6. Fast Tree. Check out [TreeTime: Maximum-likelihood phylodynamic analysis](https://doi.org/10.1093/ve/vex042), as a first alternative to BEAST runs.
    - TBD
