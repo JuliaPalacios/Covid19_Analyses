@@ -16,11 +16,11 @@
    - TBD
 
 - [ ] 5. Simulation Study. It is not clear how to subsample the whole dataset to have a representative "worldwide" analysis. We want to start with a simulation. We want to simulate two samples of sizes n1 and n2 from a population from a constant trajectory and from a population with exponential growth. What is the optimal assignment of n1 and n2 such that n1+n2=50 (for example) in order to estimate the global population size of the number of infections?
-   - 
+   - TBD
 
 - [ ] 6. Fast Tree. Check out TreeTime: Maximum-likelihood phylodynamic analysis
 Pavel Sagulenko,1 Vadim Puller,1,2,3 and Richard A. Neher1,2,3,*,†. As a first alternative to BEAST runs.
-   - 
+   - TBD
 
 - [ ] 7. Fast initial tree estimation. We want to develop a fast Bayesian EM type of inference. Sequential UPGMA seems to be partially implemented in R. We need someone who can test or implement a version of Sequential UPGMA or Sequential NNI clustering or simply Sequential hierarchical clustering. This will be an initial estimate that can sequentially be optimized according to the posterior distribution. 
    - TBD
