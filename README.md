@@ -40,6 +40,8 @@ Jaehee Kim
 
 James Johndrow
 
+Mackenzie Simper
+
 Vladimir Minin
 
 ## Other Data sources:
