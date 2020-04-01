@@ -3,6 +3,8 @@
 In this repository we report our analyses of publicly available genomic sequences of Human h-Cov19. All the data used here is provided by the laboratories that kindly shared information through GISAID. We cannot share the input datafile, however please refer to Data pre-processing to generate the fasta file: aligned.fasta. Pre-processing relies on https://github.com/nextstrain/ncov . We are thankful for their effort and for making their work publicly available.
 
 
+This is an ongoing project. Please refer to [todo](https://github.com/JuliaPalacios/Covid19_Analyses/tree/master/todo) if you would like to contribute on a certain topic.
+
 1. Data pre-processing. [Preprocess](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/alignment/alignment.md). Alignment file is called aligned.fasta and deposited in your local data folder. Exploratory plots can be found [here](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/Rcode/Initial_analysis.Rmd)
 
 
