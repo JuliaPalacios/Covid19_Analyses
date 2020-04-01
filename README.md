@@ -20,7 +20,7 @@ In this repository we report our analyses of publicly available genomic sequence
 
 
 
-4. Diversity (Effective population size)
+4. Diversity (Effective population size) [Preliminary](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/phylodynamic/Phylodynamic_Analyses1.pdf)
 
 
 
