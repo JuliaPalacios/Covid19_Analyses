@@ -44,6 +44,8 @@
    
 - [ ] 14. Inference of recombination rate and detection of recombination events. 
    - Jaehee :nerd_face:
+   
+- [ ] 15. We are eliminating some noisy sites. We need to measure this effect. How different are the reconstructions with and without noise?
 
 
 
