@@ -5,103 +5,259 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls(all=T))
 
-library(ape)
-library(phangorn)
-library(tsne)
-library(Rtsne)
+if (!require('pacman')) {install.packages('pacman')}
+pacman::p_load(lubridate,tidyr,dplyr,tsne,Rtsne,ggplot2,ape,phangorn)
+
+#library(ape)
+#library(phangorn)
+#library(tsne)
+#library(Rtsne)
 #base.dir <- '~/Documents/Covid19/'
-base.dir <- '~/Documents/GitHub/Covid19_Analyses/'
+base.dir <- '~/Documents/GitHub/Covid19/'
 #base.dir <- '/data1/GitHub/Covid19/'
 
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
 
 ##Sequence data (aligned already)
-gisaid.aligned <- paste(data.dir, 'beast_aligned_fftnsi.fasta', sep='')
-gisaid.usa.aligned <- paste(data.dir, '/USA/beast_aligned_usa.fasta', sep='')
+#gisaid.aligned <- paste(data.dir, 'beast_aligned_fftnsi.fasta', sep='')
+#gisaid.usa.aligned <- paste(data.dir, '/USA/beast_aligned_usa.fasta', sep='')
+gisaid.aligned <- paste(data.dir,'aligned.fasta',sep='')
+#gisaid.aligned <- paste(data.dir,'aligned.fasta',sep='')
+
 
 gisaidall <- read.FASTA(gisaid.aligned)
-gisaidus <- read.FASTA(gisaid.usa.aligned)
+#gisaidus <- read.FASTA(gisaid.usa.aligned)
 
 ##Metadata
 meta_fig <- read.delim(paste(data.dir, 'gisaid_meta_pp.tsv', sep=''), 
                        header=TRUE, sep='\t', as.is=TRUE)
+
+loc_data <- read.delim(paste(data.dir,'lat_longs.tsv',sep=''),header=F,sep='\t',as.is=T)
 ```
 
-# Hierarchical clustering
+# Preparing data
 
-We'll do some hierarchical clustering of the SARS-CoV-2 sequence data using different distances. First just hamming distance
+We'll do some clustering of the SARS-CoV-2 sequence data using hamming distance. This parameter controls how many clusters we make later. We convert the fasta file to a PhyDat format.
 
 ```{r}
 gisaidall <- as.phyDat(gisaidall)
-tmp <- dist.hamming(gisaidall)
-tmp<-dist.ml(gisaidall)
-locs <- meta_fig$country
-#locs<-meta_fig$division_exposure
-colors_list<-unique(locs)
-new<-data.frame(colors=colors_list,num=seq(1,length(colors_list)))
+```
+
+Now extract the date and compute a matrix of time differences, then convert it to a dist.
+
+```{r}
+dt <- meta_fig$date
+dt <- ymd(dt)
+t.diff <- sapply(as.list(dt),function(x){return(abs(x-dt))})
+t.diff <- as.dist(t.diff)
+```
+
+Now we compute hamming distances. Putting `ratio=FALSE` ensures we get the actual hamming distance and not a normalized version.
+
+```{r}
+tmp <- dist.hamming(gisaidall,ratio=FALSE)
+#tmp<-dist.ml(gisaidall)
+```
+
+This code would normalize by difference in time if you uncomment it, but right now we don't do this.
+
+```{r}
+# add 1 to avoid division by zero
+#gen.d <- tmp/(t.diff+1)
+gen.d <- tmp
+```
+
+In the next chunk here, I manually assign the different countries to continents.
+
+```{r}
+locs <- meta_fig$region
+```
+
+Now we create a set of colors to color code the regions. 
+
+```{r}
+colors_list <- unique(locs)
+new <- data.frame(colors=colors_list,num=seq(1,length(colors_list)))
 samps_col<-rep(1,length(locs))
 for (j in 1:nrow(new)){
   samps_col[locs==new[j,1]]<-new[j,2]
 }
-#mds<-cmdscale(tmp, eig=T, k=3)
-mds <- Rtsne(as.matrix(tmp),dims=3,is_distance = TRUE)
-par(mfrow=c(1,3))
-plot(table(locs),col=new[,2],cex.axis = 0.6,las=2,xlab="")
-#plot(mds$points,col=samps_col)
-plot(mds$Y,col=samps_col,pch=19)
-clust <- hclust(tmp)
+```
 
+# Clustering
+
+Let's now try a variety of clustering algorithms. In general we will be using the pairwise hamming distance as the main input to clustering.
+
+## Multidimensional scaling
+
+First we see how mds on the distance matrix works. 
+
+```{r}
+mds_clust <-cmdscale(as.matrix(gen.d),eig=T,k=3)
+
+df.mds <- data.frame(mds_clust$points[,1:2])
+names(df.mds) <- c('x1','x2')
+df.mds <- df.mds %>% mutate(region=meta_fig$region,strain=meta_fig$strain)
+
+ggplot(df.mds,aes(x=x1,y=x2,col=factor(region))) + geom_point()
+```
+
+Just eyeballing this, it seems we could make 4 clusters fairly naturally. However, the clusters are not very well separated by MDS.
+
+## t-SNE
+
+Now we try t-SNE, a reasonably new method for nonlinear embedding of high-dimensional data in a low-dimensional space. This is a very hot method in biology these days. 
+
+```{r}
+tsne_clust <- Rtsne(as.matrix(gen.d),dims=2,is_distance = TRUE)
+
+df.tsne <- data.frame(tsne_clust$Y)
+names(df.tsne) <- c('x1','x2')
+df.tsne <- df.tsne %>% mutate(region = meta_fig$region,strain=meta_fig$strain)
+
+ggplot(df.tsne,aes(x=x1,y=x2,col=factor(region))) + geom_point()
+```
+
+Above we have plotted the coordinates in a two-dimensional t-SNE embedding, and colored the points by region. This embedding seems much more useful. Again by eye, it seems we have between 9 and 11 well-separated clusters. These could be assigned using k-means for example (though we should look more into how people have been doing clustering using t-SNE).
+
+##  Hierarchical agglomerative clustering
+
+Here we do hierarchical clustering.
+
+```{r}
+clust <- hclust(gen.d)
+```
+
+We can plot the cluster dendrogram like so. 
+
+```{r}
 plot(clust,cex=.2)
 ```
 
-Let's look at the \(k\) clusters resulting from cutting the tree for a few values of \(k\).
+Let's look at the \(k\) clusters resulting from cutting the tree. Since MDS seemed to resolve about 4 clusters, and t-SNE 9, let's see what happens with either of these two values. First we cut the tree to make 4 clusters.
+
 
 ```{r}
-clusts3 <- cutree(clust,k=3)
+clusts4 <- cutree(clust,k=4)
 ```
 
 We take the sample IDs to get the countries for the samples in each cluster.
 
 ```{r}
-samps3 <- names(clusts3)
-locs3 <- sapply(strsplit(samps3,"/"),function(x){return(x[1])})
-table(locs3,clusts3)
+table(meta_fig$region,clusts4)
 ```
-These 6 samples from Hong Kong and one from Hangzhou are off on their own. It also seems like cluster 2 is Euro-centric. All 30 of the Swiss samples are in cluster 2, and 70 out of 92 from the Netherlands. On the other hand, none of the Wuhan or Guangdong samples are in cluster 2.
 
-Let's see what this looks like with 5 clusters instead.
+This gives us some amount of resolution by region. For example, it seems to have one cluster that contains data from Europe and North America but few Asian samples.
+
+Let's see what this looks like with 9 clusters instead.
 
 ```{r}
-clusts5 <- cutree(clust,k=5)
+n.clusts <- 9
+clusts.k <- cutree(clust,k=n.clusts)
 
-samps5 <- names(clusts5)
-locs5 <- sapply(strsplit(samps5,"/"),function(x){return(x[1])})
-table(locs5,clusts5)
+table(meta_fig$region,clusts.k)
+#table(dt,clusts.k)
 ```
 
-Now there are two "European" clusters, and it seems the US cases fit partly in the China cluster and partly in the first of the two European clusters. We would almost certainly want more clusters if we're using this to choose sequences to use in estimation, but this is easier to interpret.
-
-# Alternative distances
-
-Let's instead use a different distance.
+We've so far ignored time. In the next figure we plot time on the horizontal axis, cluster assignment on the vertical axis, color the points by region, and make the marker sizes proportional to the number of sequences.
 
 ```{r}
-tmp <- dist.ml(gisaidall)
-clust <- hclust(tmp)
+df.clusts.k <- data.frame(cluster = clusts.k,region=meta_fig$region,dt=dt,name=names(clusts.k))
+df.clusts.k.grp <- df.clusts.k %>% group_by(dt,region,cluster) %>% summarize(n.strains=n())
 
-plot(clust,cex=.2)
+ggplot(df.clusts.k.grp,aes(x=dt,y=cluster,size=n.strains,col=region)) + geom_point()
 ```
 
-Now again with 5 clusters
+What we see here that is quite useful is that while there are some clusters that are dominated by Europe and North America, for example, the earliest members of most of the clusters were Asian. This suggests that most of the strains in the data existed back in China in January, and the emergence of "European" and "North American" clusters is basically a founder effect.
+
+## Hamming distances by cluster pairs
+
+We compute the distribution of the hamming distance by cluster pairs. The idea here is to see how much lower variation is within than across clusters. The violin plots show the distribution of pairwise distances between each cluster (subplot title) and all other clusters (including itself.)
 
 ```{r}
-clusts5 <- cutree(clust,k=5)
+M <- as.matrix(gen.d)
+clust.dist <- cbind(rep(clusts.k,each=length(clusts.k)),rep(clusts.k,length(clusts.k)),c(M))
+clust.dist <- data.frame(clust.dist)
+names(clust.dist) <- c('cluster1','cluster2','hamm')
 
-samps5 <- names(clusts5)
-locs5 <- sapply(strsplit(samps5,"/"),function(x){return(x[1])})
-table(locs5,clusts5)
+ggplot(clust.dist,aes(x=factor(cluster1),y=hamm)) + geom_violin() + facet_wrap(~factor(cluster2))
 ```
+
+
+# Using location data
+
+Let's join to the location data and start mapping some things. The idea here is that we'll replace classifying the data by region with actually plotting on a map. We do a fair amount of tedious work below to obtain the most "granular" location available for each sample.
+
+```{r}
+loc_data <- loc_data[,2:4]
+names(loc_data) <- c('location','lat','lon')
+
+meta_fig <- meta_fig %>% left_join(loc_data,by=c("division"="location")) %>% rename(lat_division=lat,lon_division=lon) %>%
+            left_join(loc_data,by=c("division_exposure" = "location")) %>% rename(lat_division_exposure=lat,lon_division_exposure=lon) %>% left_join(loc_data,by=c("country" = "location")) %>% rename(lat_country=lat,lon_country=lon)
+meta_fig <- meta_fig %>% mutate(best_lat = ifelse(is.na(lat_division_exposure),lat_division,lat_division_exposure)) %>%
+                         mutate(best_lon = ifelse(is.na(lon_division_exposure),lon_division,lon_division_exposure)) %>%
+                         mutate(best_lat = ifelse(is.na(best_lat),lat_country,best_lat)) %>%
+                         mutate(best_lon = ifelse(is.na(best_lon),lon_country,best_lon))
+
+df.clusts.k <- df.clusts.k %>% left_join(meta_fig %>% select(strain_beast,best_lat,best_lon) %>% distinct(),by=c("name"="strain_beast"))
+```
+
+Load some packages for making maps. Some of these require you to have things loaded on your system and it can be a bit of an ordeal to get them all working (in particular sf).
+
+```{r}
+pacman::p_load(cowplot, googleway, ggplot2, ggrepel, ggspatial, sf, rnaturalearth, rnaturalearthdata,rgeos,rnaturalearthhires)
+```
+
+This obtains a set of polygons that defines a world map.
+
+```{r}
+theme_set(theme_bw())
+world <- ne_countries(scale="medium",returnclass="sf")
+class(world)
+```
+
+If you get an error above, run the next line.
+
+```{r}
+#devtools::install_github('ropensci/rnaturalearthhires')
+```
+
+Some samples have the same latitude and longitude attached. This collapses the data frame to only unique latitudes and logitudes and the count of the number of samples. 
+
+```{r}
+df.clusts.k.summ <- df.clusts.k %>% group_by(cluster,best_lat,best_lon) %>% summarise(n.sample=n())
+```
+
+Now we plot the clusters on a world map, with color correpsonding to cluster and size of dot corresponding to number of cases.
+
+```{r}
+ggplot(data=world) + geom_sf() + geom_point(data=df.clusts.k.summ,aes(x=best_lon,y=best_lat,col=factor(cluster),size=n.sample),alpha=0.6) + ylim(-50,60) + xlim(-125,150)
+```
+
+## An animated timelapse map
+
+Using the animation package, we can make a timelapse version of this map where only the samples collected before a specific date are shown. 
+
+```{r}
+pacman::p_load(animation)
+```
+
+This makes the embedded timelapse movie. It has a pink background for reasons that I don't understand. The title of each frame shows the date before which samples are included. Note that we don't re-do the clustering, we just filter out the samples that were obtained after or on that date.
+
+Note: you may need to install ffmpeg to do this. You can use homebrew to do it on a mac with the command `brew install ffmpeg`
+
+```{r animation, fig.show='animate', warning=FALSE, background='white'}
+udt <- sort(unique(dt))
+for (i in 1:length(udt)) { 
+  df.clusts.k.summ <- df.clusts.k %>% filter(dt<=udt[i]) %>% group_by(cluster,best_lat,best_lon) %>% summarise(n.sample=n())
+  plt1 <- ggplot(data=world) + geom_sf() + 
+    geom_point(data=df.clusts.k.summ,aes(x=best_lon,y=best_lat,col=factor(cluster),size=n.sample),alpha=0.6) + ylim(-50,60) + xlim(-125,150) + ggtitle(udt[i])
+  print(plt1)
+}
+```
+
 
 
 
