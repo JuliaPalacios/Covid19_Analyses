@@ -13,11 +13,37 @@ library(ape)
 library(lubridate)
 chosen="UK"
 chosen2<-"United Kingdom"
-chosen3<-"United_Kingdom"
 base.dir <- '~/Documents/Covid_Analysis/'
 data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
 data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
-data_log<-read.delim(paste(data.dir,"fasta",chosen3,".log",sep=""),skip=3)
+data_log<-read.delim(paste(data.dir,"fasta",chosen,".log",sep=""),skip=3)
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+plot_BNPR(bnp,xlim=c(min(bnp$x),max(bnp$x)),main=chosen,heatmap_labels=FALSE)
+
+```
+
+```{r,echo=FALSE}
+chosen="Germany"
+chosen2<-"Germany"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
 meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
                            header=TRUE, sep='\t', as.is=T)
 
@@ -36,12 +62,14 @@ bnp$x <- lastdate - bnp$x
 bnp$samp_times <- lastdate - bnp$samp_times
 bnp$coal_times <- lastdate - bnp$coal_times
 
-plot_BNPR(bnp,xlim=c(2020,lastdate),main=chosen,heatmap_labels=FALSE)
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen,heatmap_labels=FALSE)
+
 ```
 
+
 ```{r,echo=FALSE}
-chosen="China"
-chosen2<-"China"
+chosen="Australia"
+chosen2<-"Australia"
 base.dir <- '~/Documents/Covid_Analysis/'
 data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
 data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
@@ -50,7 +78,7 @@ meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''),
 
 
 tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
-plot(tree,show.tip.label = FALSE,cex=.3,main=chosen)
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
 ```
 
 
@@ -64,6 +92,242 @@ bnp$samp_times <- lastdate - bnp$samp_times
 bnp$coal_times <- lastdate - bnp$coal_times
 
 plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen,heatmap_labels=FALSE)
+
+```
+
+
+
+```{r,echo=FALSE}
+chosen="Canada"
+chosen2<-"Canada"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen,heatmap_labels=FALSE)
+
+```
+
+
+
+```{r,echo=FALSE}
+chosen="France"
+chosen2<-"France"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen,heatmap_labels=FALSE)
+
+```
+
+
+```{r,echo=FALSE}
+chosen="HongKong"
+chosen2<-"Hong Kong"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen2,heatmap_labels=FALSE)
+
+```
+
+
+```{r,echo=FALSE}
+chosen="Netherlands"
+chosen2<-"Netherlands"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen2,heatmap_labels=FALSE)
+
+```
+
+
+
+```{r,echo=FALSE}
+chosen="Portugal"
+chosen2<-"Portugal"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen2,heatmap_labels=FALSE)
+
+```
+
+
+```{r,echo=FALSE}
+chosen="Spain"
+chosen2<-"Spain"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen2,heatmap_labels=FALSE)
+
+```
+
+
+
+```{r,echo=FALSE}
+chosen="Iceland"
+chosen2<-"Iceland"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen2,heatmap_labels=FALSE)
+
+```
+
+
+```{r,echo=FALSE}
+chosen="china"
+chosen2<-"China"
+base.dir <- '~/Documents/Covid_Analysis/'
+data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
+data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
+meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''), 
+                           header=TRUE, sep='\t', as.is=T)
+
+
+tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
+```
+
+
+```{r,echo=FALSE}
+#lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
+
+bnp<-BNPR(tree)
+bnp$grid <- lastdate - bnp$grid
+bnp$x <- lastdate - bnp$x
+bnp$samp_times <- lastdate - bnp$samp_times
+bnp$coal_times <- lastdate - bnp$coal_times
+
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),max(bnp$x)),main=chosen2,heatmap_labels=FALSE)
 
 ```
 
@@ -79,12 +343,11 @@ meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''),
 
 
 tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
-plot(tree,show.tip.label = FALSE,cex=.3,main=chosen)
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
 ```
 
 
 ```{r,echo=FALSE}
-lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
 
 bnp<-BNPR(tree)
 bnp$grid <- lastdate - bnp$grid
@@ -92,15 +355,13 @@ bnp$x <- lastdate - bnp$x
 bnp$samp_times <- lastdate - bnp$samp_times
 bnp$coal_times <- lastdate - bnp$coal_times
 
-plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen,heatmap_labels=FALSE)
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),max(bnp$x)),main=chosen2,heatmap_labels=FALSE)
 
 ```
 
-
-
 ```{r,echo=FALSE}
-chosen="Australia"
-chosen2<-"Australia"
+chosen="USA"
+chosen2<-"USA"
 base.dir <- '~/Documents/Covid_Analysis/'
 data.dir <- paste(base.dir, 'alignment/BEAST/', sep='')
 data.dir2 <- paste(base.dir, 'alignment/data/', sep='')
@@ -108,13 +369,12 @@ meta_fig <- read.delim(paste(data.dir2, '/gisaid_meta_pp.tsv', sep=''),
                            header=TRUE, sep='\t', as.is=T)
 
 
-tree<-read.nexus(file=paste(data.dir,"mcct_",chosen,sep=""))
-plot(tree,show.tip.label = FALSE,cex=.3,main=chosen)
+tree<-read.nexus(file=paste(data.dir,"maxclade_usa",sep=""))
+plot(tree,show.tip.label = TRUE,cex=.3,main=chosen)
 ```
 
 
 ```{r,echo=FALSE}
-lastdate<-decimal_date(max(ymd(meta_fig$date[meta_fig$country==chosen2])))
 
 bnp<-BNPR(tree)
 bnp$grid <- lastdate - bnp$grid
@@ -122,10 +382,6 @@ bnp$x <- lastdate - bnp$x
 bnp$samp_times <- lastdate - bnp$samp_times
 bnp$coal_times <- lastdate - bnp$coal_times
 
-plot_BNPR(bnp,xlim=c(min(bnp$coal_times),lastdate),main=chosen,heatmap_labels=FALSE)
+plot_BNPR(bnp,xlim=c(min(bnp$coal_times),max(bnp$x)),main=chosen2,heatmap_labels=FALSE)
 
 ```
-
-
-
-
