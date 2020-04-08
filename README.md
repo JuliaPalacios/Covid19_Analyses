@@ -46,6 +46,10 @@ Mackenzie Simper
 
 Vladimir Minin
 
+Leonardo Bonanno
+
+Aaron Behr
+
 ## Other Data sources:
 https://covidtracking.com/data/ 
 
