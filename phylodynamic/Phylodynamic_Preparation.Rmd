@@ -16,7 +16,7 @@ base.dir <- '~/Documents/Covid_Analysis/'
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
 
 ## GenBank reference genome meta data
-ref.meta <- read.delim('../alignment/data/GenBank/genbank_MN908947_meta.txt', header=T, as.is=T, sep='\t')
+ref.meta <- read.delim(paste(data.dir,'genbank_MN908947_meta.txt',sep=""), header=T, as.is=T, sep='\t')
 
 ##Sequence data (aligned already)
 gisaid.aligned <- paste(data.dir, 'aligned.fasta', sep='')
@@ -31,8 +31,8 @@ meta.fig <- read.delim(paste(data.dir, '/gisaid_meta_pp.tsv', sep=''),
 We will analyze USA data. We will remove the sites that have missing values in more than 20\% of the samples and remove the samples that have more than 10\% of its data missing.
 
 ```{r,echo=FALSE}
-chosen<-"USA"
 fastafile <- as.phyDat(gisaidall)
+chosen<-"China"
 data.matrix<-as.character(as.matrix(fastafile))
 root<-"Wuhan-Hu-1/2019"
 ref<-which(meta.fig$strain==root)
@@ -55,14 +55,47 @@ data.matrix<-rbind(data.matrix,ref.data)
 ```{r,echo=FALSE}
 ## ============= strain names ===============
 meta.to.write <- meta.fig$strain_beast[c(which(meta.fig$country==chosen), ref)]
-
+#meta.to.write <- meta.fig$strain_beast[meta.fig$country==chosen]
+#chosen<-"HongKong"
 seqinr::write.fasta(sequences=as.list(data.frame(t(data.matrix))), 
                     names=meta.to.write,
-                    file.out=paste(base.dir, 'alignment/data/fasta',chosen,'.fasta', sep=''),
+                    file.out=paste(base.dir, 'alignment/BEAST/fasta',chosen,'.fasta', sep=''),
                     nbchar=60)
 
 
 ```
+
+```{r,echo=FALSE}
+#Author: Leonardo Bonano
+library(seqinr)
+alig = read.fasta(paste(base.dir, 'alignment/BEAST/fasta',chosen,'.fasta', sep=''))
+n = length(alig)
+ids = names(alig)
+items = list()
+dates = list()
+  for (i in 1:n) {
+    id = ids[i]
+    seq = paste0(alig[[i]], collapse = "")
+    seq = toupper(seq)
+    date = decimal_date(as.POSIXlt(substr(id, start = nchar(id) - 9, stop = nchar(id))))
+    dates[[i]] = sprintf('\t\t<taxon id="%s">\n\t\t\t<date value="%f" direction="forwards" units="years"/>\n\t\t</taxon>\n', id, date)
+    items[[i]] = sprintf('\t\t<sequence>\n\t\t\t<taxon idref="%s"/>\n\t\t\t%s\n\t\t</sequence>\n', id, seq)
+  }
+    fileName = paste(base.dir, 'alignment/BEAST/fasta',chosen,'.xml', sep='')
+    cat('<?xml version="1.0" standalone="yes"?>\n\n<beast>\n\n\t<taxa id="taxa">\n', file = fileName, append = TRUE)
+  for (i in 1:n) {
+    cat(dates[[i]], file = fileName, append = TRUE)
+  }
+    cat('\t</taxa>\n\n\t<alignment id="alignment" dataType="nucleotide">\n', file = fileName, append = TRUE)
+  for (i in 1:n) {
+    cat(items[[i]], file = fileName, append = TRUE)
+  }
+  fileName2 = paste(base.dir, 'alignment/BEAST/post.txt', sep='')
+  post = readChar(fileName2, file.info(fileName2)$size)
+  cat('\t</alignment>\n\n', file = fileName, append = TRUE)
+  cat(sprintf(post,n-1,n-1,chosen, chosen, chosen), file = fileName, append = TRUE)
+```
+
 
 ```{r,echo=FALSE}
 ##Remove samples that have missing data
@@ -77,5 +110,47 @@ seqinr::write.fasta(sequences=as.list(data.frame(t(data.matrix))),
 # tmp <- dist.hamming(mi,ratio=FALSE)
 
 ```
+A rough initial estimate of mutation rate:
+```{r, echo=FALSE}
+dates_samp<-ymd(meta.fig$date[meta.fig$country==chosen])
+x<-dates_samp-ymd(meta.fig$date[ref])
+hamming<-as.matrix(dist.hamming(as.phyDat(data.matrix),ratio=FALSE))
+reg<-lm(hamming[nrow(hamming),-nrow(hamming)]~-1+x)
+summary(reg)
+plot(x,hamming[nrow(hamming),-nrow(hamming)],ylab="Distance to reference",xlab="Time difference (Days)",main=paste("A total of ",round(reg$coefficients[[1]]*28,2)," of mutations per month",sep=""))
+abline(reg)
+}
 
+mu<-reg$coefficients[[1]]
+```
+Covert data to binary and show perfect phylogeny of data
+```{r, echo=FALSE}
+dates.tot<-c(dates_samp,ymd(meta.fig$date[ref]))
+tot.row<-nrow(data.matrix)
+binary.matrix<-matrix(0,nrow=nrow(data.matrix),ncol=ncol(data.matrix))
+for (j in 1:ncol(binary.matrix)){
+  tmp<-data.matrix[data.matrix[,j]!=data.matrix[tot.row,j],j]
+  tmp<-tmp[tmp!="n"]
+  tmp<-tmp[tmp!="-"]
+  tmp2<-unique(c(tmp[tmp=="a"],tmp[tmp=="c"],tmp[tmp=="t"],tmp[tmp=="g"]))
+  if (length(tmp2)==1){binary.matrix[data.matrix[,j]==tmp2[1],j]<-1}
+  if (length(tmp2)==2){
+    if (min(dates.tot[data.matrix[,j]==tmp2[1]])<min(dates.tot[data.matrix[,j]==tmp2[2]])){
+      binary.matrix[data.matrix[,j]==tmp2[1],j]<-1
+      binary.matrix[data.matrix[,j]==tmp2[2],j]<-2
+    }else{
+      binary.matrix[data.matrix[,j]==tmp2[1],j]<-2
+      binary.matrix[data.matrix[,j]==tmp2[2],j]<-1
+    }
+    
+  }
+  if (length(tmp2)==3){
+    print(j)
+    break
+  }
+  
+}
 
+sum(binary.matrix==2)
+
+```

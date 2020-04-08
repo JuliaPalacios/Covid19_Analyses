@@ -1,0 +1,225 @@
+<patterns id="patterns" from="1" strip="false">
+		<alignment idref="alignment"/>
+	</patterns>
+
+	<!-- This is a simple constant population size coalescent model              -->
+	<!-- that is used to generate an initial tree for the chain.                 -->
+	<constantSize id="initialDemo" units="years">
+		<populationSize>
+			<parameter id="initialDemo.popSize" value="100.0"/>
+		</populationSize>
+	</constantSize>
+
+	<!-- Generate a random starting tree under the coalescent process            -->
+	<coalescentSimulator id="startingTree">
+		<taxa idref="taxa"/>
+		<constantSize idref="initialDemo"/>
+	</coalescentSimulator>
+
+	<!-- Generate a tree model                                                   -->
+	<treeModel id="treeModel">
+		<coalescentTree idref="startingTree"/>
+		<rootHeight>
+			<parameter id="treeModel.rootHeight"/>
+		</rootHeight>
+		<nodeHeights internalNodes="true">
+			<parameter id="treeModel.internalNodeHeights"/>
+		</nodeHeights>
+		<nodeHeights internalNodes="true" rootNode="true">
+			<parameter id="treeModel.allInternalNodeHeights"/>
+		</nodeHeights>
+	</treeModel>
+
+	<!-- Generate a gmrfSkyrideLikelihood for GMRF Bayesian Skyride process      -->
+	<gmrfSkyrideLikelihood id="skyride" timeAwareSmoothing="true" randomizeTree="false">
+		<populationSizes>
+
+			<!-- skyride.logPopSize is in log units unlike other popSize                 -->
+			<parameter id="skyride.logPopSize" dimension="%s" value="1.0"/>
+		</populationSizes>
+		<groupSizes>
+			<parameter id="skyride.groupSize" dimension="%s"/>
+		</groupSizes>
+		<precisionParameter>
+			<parameter id="skyride.precision" value="1.0" lower="0.0"/>
+		</precisionParameter>
+		<populationTree>
+			<treeModel idref="treeModel"/>
+		</populationTree>
+	</gmrfSkyrideLikelihood>
+
+	<!-- The strict clock (Uniform rates across branches)                        -->
+	<strictClockBranchRates id="branchRates">
+		<rate>
+			<parameter id="clock.rate" value="1.0" lower="0.0"/>
+		</rate>
+	</strictClockBranchRates>
+	<rateStatistic id="meanRate" name="meanRate" mode="mean" internal="true" external="true">
+		<treeModel idref="treeModel"/>
+		<strictClockBranchRates idref="branchRates"/>
+	</rateStatistic>
+
+	<!-- The HKY substitution model (Hasegawa, Kishino & Yano, 1985)             -->
+	<HKYModel id="hky">
+		<frequencies>
+			<frequencyModel dataType="nucleotide">
+				<frequencies>
+					<parameter id="frequencies" value="0.25 0.25 0.25 0.25"/>
+				</frequencies>
+			</frequencyModel>
+		</frequencies>
+		<kappa>
+			<parameter id="kappa" value="2.0" lower="0.0"/>
+		</kappa>
+	</HKYModel>
+
+	<!-- site model                                                              -->
+	<siteModel id="siteModel">
+		<substitutionModel>
+			<HKYModel idref="hky"/>
+		</substitutionModel>
+		<relativeRate>
+			<parameter id="mu" value="1.0" lower="0.0"/>
+		</relativeRate>
+		<gammaShape gammaCategories="4">
+			<parameter id="alpha" value="0.5" lower="0.0"/>
+		</gammaShape>
+	</siteModel>
+
+	<!-- Likelihood for tree given sequence data                                 -->
+	<treeLikelihood id="treeLikelihood" useAmbiguities="false">
+		<patterns idref="patterns"/>
+		<treeModel idref="treeModel"/>
+		<siteModel idref="siteModel"/>
+		<strictClockBranchRates idref="branchRates"/>
+	</treeLikelihood>
+
+	<!-- Define operators                                                        -->
+	<operators id="operators" optimizationSchedule="log">
+		<scaleOperator scaleFactor="0.75" weight="1">
+			<parameter idref="kappa"/>
+		</scaleOperator>
+		<deltaExchange delta="0.01" weight="1">
+			<parameter idref="frequencies"/>
+		</deltaExchange>
+		<scaleOperator scaleFactor="0.75" weight="1">
+			<parameter idref="alpha"/>
+		</scaleOperator>
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="clock.rate"/>
+		</scaleOperator>
+		<subtreeSlide size="1.0" gaussian="true" weight="15">
+			<treeModel idref="treeModel"/>
+		</subtreeSlide>
+		<narrowExchange weight="15">
+			<treeModel idref="treeModel"/>
+		</narrowExchange>
+		<wideExchange weight="3">
+			<treeModel idref="treeModel"/>
+		</wideExchange>
+		<wilsonBalding weight="3">
+			<treeModel idref="treeModel"/>
+		</wilsonBalding>
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="treeModel.rootHeight"/>
+		</scaleOperator>
+		<uniformOperator weight="30">
+			<parameter idref="treeModel.internalNodeHeights"/>
+		</uniformOperator>
+		<gmrfBlockUpdateOperator scaleFactor="2.0" weight="2">
+			<gmrfSkyrideLikelihood idref="skyride"/>
+		</gmrfBlockUpdateOperator>
+		<upDownOperator scaleFactor="0.75" weight="3">
+			<up>
+				<parameter idref="clock.rate"/>
+			</up>
+			<down>
+				<parameter idref="treeModel.allInternalNodeHeights"/>
+			</down>
+		</upDownOperator>
+	</operators>
+
+<!-- Define MCMC                                                             -->
+	<mcmc id="mcmc" chainLength="50000000" autoOptimize="true" operatorAnalysis="fasta%s.ops">
+		<posterior id="posterior">
+			<prior id="prior">
+				<logNormalPrior mean="1.0" stdev="1.25" offset="0.0" meanInRealSpace="false">
+					<parameter idref="kappa"/>
+				</logNormalPrior>
+				<uniformPrior lower="0.0" upper="1.0">
+					<parameter idref="frequencies"/>
+				</uniformPrior>
+				<exponentialPrior mean="0.5" offset="0.0">
+					<parameter idref="alpha"/>
+				</exponentialPrior>
+				<ctmcScalePrior>
+					<ctmcScale>
+						<parameter idref="clock.rate"/>
+					</ctmcScale>
+					<treeModel idref="treeModel"/>
+				</ctmcScalePrior>
+				<gammaPrior shape="0.001" scale="1000.0" offset="0.0">
+					<parameter idref="skyride.precision"/>
+				</gammaPrior>
+				<gmrfSkyrideLikelihood idref="skyride"/>
+				<strictClockBranchRates idref="branchRates"/>
+			</prior>
+			<likelihood id="likelihood">
+				<treeLikelihood idref="treeLikelihood"/>
+			</likelihood>
+		</posterior>
+		<operators idref="operators"/>
+
+		<!-- write log to screen                                                     -->
+		<log id="screenLog" logEvery="5000">
+			<column label="Posterior" dp="4" width="12">
+				<posterior idref="posterior"/>
+			</column>
+			<column label="Prior" dp="4" width="12">
+				<prior idref="prior"/>
+			</column>
+			<column label="Likelihood" dp="4" width="12">
+				<likelihood idref="likelihood"/>
+			</column>
+			<column label="rootHeight" sf="6" width="12">
+				<parameter idref="treeModel.rootHeight"/>
+			</column>
+			<column label="clock.rate" sf="6" width="12">
+				<parameter idref="clock.rate"/>
+			</column>
+		</log>
+
+		<!-- write log to file                                                       -->
+		<log id="fileLog" logEvery="5000" fileName="fasta%s.log" overwrite="false">
+			<posterior idref="posterior"/>
+			<prior idref="prior"/>
+			<likelihood idref="likelihood"/>
+			<parameter idref="treeModel.rootHeight"/>
+			<parameter idref="skyride.precision"/>
+			<parameter idref="skyride.logPopSize"/>
+			<parameter idref="skyride.groupSize"/>
+			<parameter idref="kappa"/>
+			<parameter idref="frequencies"/>
+			<parameter idref="alpha"/>
+			<parameter idref="clock.rate"/>
+			<rateStatistic idref="meanRate"/>
+			<treeLikelihood idref="treeLikelihood"/>
+			<strictClockBranchRates idref="branchRates"/>
+			<gmrfSkyrideLikelihood idref="skyride"/>
+		</log>
+
+		<!-- write tree log to file                                                  -->
+		<logTree id="treeFileLog" logEvery="5000" nexusFormat="true" fileName="fasta%s.trees" sortTranslationTable="true">
+			<treeModel idref="treeModel"/>
+			<trait name="rate" tag="rate">
+				<strictClockBranchRates idref="branchRates"/>
+			</trait>
+			<posterior idref="posterior"/>
+		</logTree>
+	</mcmc>
+	<report>
+		<property name="timer">
+			<mcmc idref="mcmc"/>
+		</property>
+	</report>
+</beast>
