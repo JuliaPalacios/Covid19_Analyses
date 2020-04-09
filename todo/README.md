@@ -19,10 +19,10 @@
    - Mackenzie
 
 - [ ] 6. Fast Tree. Check out [TreeTime: Maximum-likelihood phylodynamic analysis](https://doi.org/10.1093/ve/vex042), as a first alternative to BEAST runs.
-   - TBD
+   - Lorenzo
 
 - [ ] 7. Fast initial tree estimation. We want to develop a fast Bayesian EM type of inference. Sequential UPGMA seems to be partially implemented in R. We need someone who can test or implement a version of Sequential UPGMA or Sequential NNI clustering or simply Sequential hierarchical clustering. This will be an initial estimate that can sequentially be optimized according to the posterior distribution. 
-   - TBD
+   - Lorenzo
 
 - [ ] 8. Estimation of Mutation rate. BEAST *.log files prints joint posterior distribution. We need to have a script that reads all *.log files available in a folder and plots all boxplots of mutation rate per country. 
    - TBD
