@@ -8,7 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls(all=T))
 
 # set true if you only want to do USA
-us.only <- T
+us.only <- F
 
 if (!require('pacman')) {install.packages('pacman')}
 pacman::p_load(lubridate,tidyr,dplyr,tsne,Rtsne,ggplot2,ape,phangorn)
@@ -37,12 +37,6 @@ loc_data <- read.delim(paste(data.dir,'lat_longs.tsv',sep=''),header=F,sep='\t',
 ```
 
 # Preparing data
-
-Change this if you want to do the US only.
-
-```{r}
-us.only <- T
-```
 
 We'll do some clustering of the SARS-CoV-2 sequence data using hamming distance. This parameter controls how many clusters we make later. We convert the fasta file to a PhyDat format.
 
