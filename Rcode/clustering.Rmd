@@ -7,37 +7,42 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls(all=T))
 
+# set true if you only want to do USA
+us.only <- T
+
 if (!require('pacman')) {install.packages('pacman')}
 pacman::p_load(lubridate,tidyr,dplyr,tsne,Rtsne,ggplot2,ape,phangorn)
 
-#library(ape)
-#library(phangorn)
-#library(tsne)
-#library(Rtsne)
-#base.dir <- '~/Documents/Covid19/'
-base.dir <- '~/Documents/GitHub/Covid19/'
-#base.dir <- '/data1/GitHub/Covid19/'
 
+base.dir <- '~/Documents/GitHub/Covid19/'
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
 
-##Sequence data (aligned already)
-#gisaid.aligned <- paste(data.dir, 'beast_aligned_fftnsi.fasta', sep='')
-#gisaid.usa.aligned <- paste(data.dir, '/USA/beast_aligned_usa.fasta', sep='')
 gisaid.aligned <- paste(data.dir,'aligned.fasta',sep='')
-#gisaid.aligned <- paste(data.dir,'aligned.fasta',sep='')
-
 
 gisaidall <- read.FASTA(gisaid.aligned)
-#gisaidus <- read.FASTA(gisaid.usa.aligned)
+
 
 ##Metadata
 meta_fig <- read.delim(paste(data.dir, 'gisaid_meta_pp.tsv', sep=''), 
                        header=TRUE, sep='\t', as.is=TRUE)
 
+
+if (us.only) {
+  id.us <- meta_fig$country == "USA"
+  gisaidall <- gisaidall[id.us]
+  meta_fig <- meta_fig[id.us,]
+}
+
 loc_data <- read.delim(paste(data.dir,'lat_longs.tsv',sep=''),header=F,sep='\t',as.is=T)
 ```
 
 # Preparing data
+
+Change this if you want to do the US only.
+
+```{r}
+us.only <- T
+```
 
 We'll do some clustering of the SARS-CoV-2 sequence data using hamming distance. This parameter controls how many clusters we make later. We convert the fasta file to a PhyDat format.
 
@@ -72,6 +77,11 @@ gen.d <- tmp
 In the next chunk here, I manually assign the different countries to continents.
 
 ```{r}
+# for now a hack to make everything work out right
+# when we do this for the USA only
+if (us.only) {
+  meta_fig$region <- meta_fig$division
+}
 locs <- meta_fig$region
 ```
 
@@ -120,7 +130,7 @@ df.tsne <- df.tsne %>% mutate(region = meta_fig$region,strain=meta_fig$strain)
 ggplot(df.tsne,aes(x=x1,y=x2,col=factor(region))) + geom_point()
 ```
 
-Above we have plotted the coordinates in a two-dimensional t-SNE embedding, and colored the points by region. This embedding seems much more useful. Again by eye, it seems we have between 9 and 11 well-separated clusters. These could be assigned using k-means for example (though we should look more into how people have been doing clustering using t-SNE).
+Above we have plotted the coordinates in a two-dimensional t-SNE embedding, and colored the points by region. This embedding seems much more useful. Again by eye, it seems we have roughly 18 well-separated clusters. These could be assigned using k-means for example (though we should look more into how people have been doing clustering using t-SNE).
 
 ##  Hierarchical agglomerative clustering
 
@@ -154,7 +164,7 @@ This gives us some amount of resolution by region. For example, it seems to have
 Let's see what this looks like with 9 clusters instead.
 
 ```{r}
-n.clusts <- 9
+n.clusts <- 10
 clusts.k <- cutree(clust,k=n.clusts)
 
 table(meta_fig$region,clusts.k)
@@ -164,7 +174,7 @@ table(meta_fig$region,clusts.k)
 We've so far ignored time. In the next figure we plot time on the horizontal axis, cluster assignment on the vertical axis, color the points by region, and make the marker sizes proportional to the number of sequences.
 
 ```{r}
-df.clusts.k <- data.frame(cluster = clusts.k,region=meta_fig$region,dt=dt,name=names(clusts.k))
+df.clusts.k <- data.frame(cluster = clusts.k,region=meta_fig$region,dt=dt,name=meta_fig$strain)
 df.clusts.k.grp <- df.clusts.k %>% group_by(dt,region,cluster) %>% summarize(n.strains=n())
 
 ggplot(df.clusts.k.grp,aes(x=dt,y=cluster,size=n.strains,col=region)) + geom_point()
@@ -201,7 +211,7 @@ meta_fig <- meta_fig %>% mutate(best_lat = ifelse(is.na(lat_division_exposure),l
                          mutate(best_lat = ifelse(is.na(best_lat),lat_country,best_lat)) %>%
                          mutate(best_lon = ifelse(is.na(best_lon),lon_country,best_lon))
 
-df.clusts.k <- df.clusts.k %>% left_join(meta_fig %>% select(strain_beast,best_lat,best_lon) %>% distinct(),by=c("name"="strain_beast"))
+df.clusts.k <- df.clusts.k %>% left_join(meta_fig %>% select(strain,best_lat,best_lon) %>% distinct(),by=c("name"="strain"))
 ```
 
 Load some packages for making maps. Some of these require you to have things loaded on your system and it can be a bit of an ordeal to get them all working (in particular sf).
@@ -233,7 +243,8 @@ df.clusts.k.summ <- df.clusts.k %>% group_by(cluster,best_lat,best_lon) %>% summ
 Now we plot the clusters on a world map, with color correpsonding to cluster and size of dot corresponding to number of cases.
 
 ```{r}
-ggplot(data=world) + geom_sf() + geom_point(data=df.clusts.k.summ,aes(x=best_lon,y=best_lat,col=factor(cluster),size=n.sample),alpha=0.6) + ylim(-50,60) + xlim(-125,150)
+ggplot(data=world) + geom_sf() + geom_point(data=df.clusts.k.summ,aes(x=best_lon,y=best_lat,col=factor(cluster),size=n.sample),alpha=0.6) + ylim(-50,60) + xlim(-125,150) +
+  guides(col=guide_legend(ncol=2),size=guide_legend(ncol=2))
 ```
 
 ## An animated timelapse map
@@ -253,7 +264,7 @@ udt <- sort(unique(dt))
 for (i in 1:length(udt)) { 
   df.clusts.k.summ <- df.clusts.k %>% filter(dt<=udt[i]) %>% group_by(cluster,best_lat,best_lon) %>% summarise(n.sample=n())
   plt1 <- ggplot(data=world) + geom_sf() + 
-    geom_point(data=df.clusts.k.summ,aes(x=best_lon,y=best_lat,col=factor(cluster),size=n.sample),alpha=0.6) + ylim(-50,60) + xlim(-125,150) + ggtitle(udt[i])
+    geom_point(data=df.clusts.k.summ,aes(x=best_lon,y=best_lat,col=factor(cluster),size=n.sample),alpha=0.6) + ylim(-50,60) + xlim(-125,150) + ggtitle(udt[i]) + guides(col=guide_legend(ncol=2),size=guide_legend(ncol=2))
   print(plt1)
 }
 ```
