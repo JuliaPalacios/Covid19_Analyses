@@ -76,7 +76,7 @@ mu_linear_reg<-function(alig){
   reg<-lm(hamming[nrow(hamming),-nrow(hamming)]~-1+x[-nrow(hamming)])
   #Convert data to 0s and 1s - Assumes the reference sequence is the last row
   data.matrix<-as.character(as.matrix(alig))
-  mu<-reg$coefficients[[1]]*365/length(alig[[1]])
+  mu<-reg$coefficients[[1]]*365/length(as.phyDat(alig)[[1]])
   return(mu)
 }
 
