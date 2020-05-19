@@ -37,18 +37,18 @@ gisaid.all.f <- paste(data.dir, 'msa.fasta', sep='')
 library("ape")
 alldata<-read.FASTA(gisaid.all.f)
 
-lengthVec<-rep(0,length(alldata))
-for (j in 1:length(alldata)){
-  lengthVec[j]<-length(as.matrix(alldata[j]))
-}
-
-##Out of the original
-length(alldata)
-hist(lengthVec)
-# This number have length<5000
-sum(lengthVec<5000)
-hist(lengthVec[lengthVec>5000])
-plot(sort(lengthVec))
+# lengthVec<-rep(0,length(alldata))
+# for (j in 1:length(alldata)){
+#   lengthVec[j]<-length(as.matrix(alldata[j]))
+# }
+# 
+# ##Out of the original
+# length(alldata)
+# hist(lengthVec)
+# # This number have length<5000
+# sum(lengthVec<5000)
+# hist(lengthVec[lengthVec>5000])
+# plot(sort(lengthVec))
 
 ## Eventually, all these preprocessing will be a single bash script
 #  but for now, it's a sub-optimal hybrid of bash and R... =( 
@@ -124,8 +124,7 @@ meta.to.write <- ns.meta.data[ns.to.include, ]
 # Insert field for beast strain name
 meta.to.write$strain_beast <- paste(meta.to.write$strain, meta.to.write$date, sep='|')
 meta.to.write <- meta.to.write[, c(1, 22, 2:24)]
-write.table(meta.to.write, file=gisaid.meta.out.f,
-            quote=FALSE, row.names=FALSE, col.names=TRUE, sep='\t')
+write.table(meta.to.write, file=gisaid.meta.out.f, quote=FALSE,row.names=FALSE, col.names=TRUE, sep='\t')
 
 
 ## ==== Write fasta file ====
