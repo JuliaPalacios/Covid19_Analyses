@@ -1,38 +1,41 @@
 ## This script is to subset gisaid by field's value.
 # Note that the meta and msa fasta files from GASAID are NOT in the same order...
-# Each sequence is in a single line in the current GISAID fasta file. 
-# Also, the bash script + R combo is suboptimal but this was a quick try. 
+# Each sequence is in a single line in the current GISAID fasta file.
+# Also, the bash script + R combo is suboptimal but this was a quick try.
+#
 # It assumes you Downloaded msa and metadata from Gisaid and placed them in /alignment/data
+#
+# This script creates pre-processed one master fasta and meta files for
+# all sequences passing the quality check.
 
 rm(list=ls())
 
 ## ==================================================
 ## Setting paths etc
 ## ==================================================
-#base.dir <- '~/Desktop/Coronavirus/data_GISAID/2020_05_19/msa_0519/'
 base.dir <- '~/Documents/Covid_Analysis/alignment/data/'
+
+# the scripts don't have to be in the base.dir
+script.dir <- base.dir
 
 setwd(base.dir)
 fasta.f <- paste(base.dir, 'msa.fasta', sep='')
 meta.f <- paste(base.dir, 'metadata.tsv', sep='')
-country <- 'USA'
-getmeta.sh <- paste(base.dir, 'get_meta_all.sh', sep='') # the scripts don't have to be in the base.dir
-getfasta.sh <- paste(base.dir, 'get_country_fasta.sh', sep='')
+getmeta.sh <- paste(script.dir, 'get_meta_all.sh', sep='') 
+getfasta.sh <- paste(script.dir, 'subset_fasta.sh', sep='')
 
-add.ref.seq <- TRUE # boolean for adding wuhan reference genome in the final output
 
 ## ===================================================================
 ## get header info from fasta file and generate meta file based on it
 ## ===================================================================
-getmeta.str <- paste('sh', getmeta.sh, base.dir, fasta.f, country, sep=' ')
+getmeta.str <- paste('sh', getmeta.sh, base.dir, fasta.f, sep=' ')
 system(getmeta.str)
 
-cat(paste('\nCountry chosen:', country, '\n\n'))
 
-## ==================================================
-## quality check and get subset index  
-## ==================================================
-fasta.meta <- read.delim(paste(base.dir, 'meta_fasta.tsv', sep=''), 
+## =========================================================
+## quality check and get subset index for quality filtering
+## =========================================================
+fasta.meta <- read.delim(paste(base.dir, 'meta_fasta.tsv', sep=''),
                          as.is=TRUE, header=FALSE)
 colnames(fasta.meta) <- c('meta.id', 'gisaid_epi_isl', 'date', 'division')
 
@@ -40,7 +43,7 @@ colnames(fasta.meta) <- c('meta.id', 'gisaid_epi_isl', 'date', 'division')
 stopifnot(dim(fasta.meta)[1] == length(grep('EPI_ISL_', fasta.meta$gisaid_epi_isl)))
 
 # check for duplicates (though gisaid said they already filtered for it)
-stopifnot(length(fasta.meta$gisaid_epi_isl) 
+stopifnot(length(fasta.meta$gisaid_epi_isl)
           == length(unique(fasta.meta$gisaid_epi_isl)))
 
 ## ==== nextstrain's exclude file ======
@@ -56,7 +59,6 @@ to.include.1 <-  !(fasta.meta$gisaid_epi_isl %in% exclude.seq$strain)
 cat(paste('\nNumber of sequences NOT in the exclude.txt is', sum(to.include.1), '\n'))
 
 
-
 ## === remove sequences not in meta file ===
 gisaid.meta <- read.delim(meta.f, header=TRUE, as.is=TRUE)
 to.include.2 <- fasta.meta$gisaid_epi_isl %in% gisaid.meta$gisaid_epi_isl
@@ -68,76 +70,42 @@ to.include.3 <- !is.na(strptime(fasta.meta$date, format='%Y-%m-%d'))
 cat(paste('Number of sequences with precise date is', sum(to.include.3), '\n'))
 
 
-## === subset country by matching ID in both meta files ===
-match.id <- match(fasta.meta$gisaid_epi_isl, gisaid.meta$gisaid_epi_isl)
-match.id[which(is.na(match.id))] <- 1 
-# it'll be filtered by to.include.2 but just to be sure
-stopifnot(!(which(is.na(match.id)) %in% which(to.include.2)))
-to.include.4 <- gisaid.meta$country[match.id] == country
-cat(paste('Number of sequences from', country, 'is', sum(to.include.4), '\n'))
-
-
 ## === Final strains to be included ===
-to.include <- which(to.include.1 & to.include.2 & to.include.3 & to.include.4)
+to.include <- which(to.include.1 & to.include.2 & to.include.3)
 n.tot <- length(to.include)
-cat(paste('\nFinal number of sequences after pre-processing and subsetting for',
-          country, 'is', n.tot, '\n'))
-write.table(to.include, paste('tmp_', country, '_ind.txt', sep=''), quote=FALSE, 
+cat(paste('\nFinal number of sequences after pre-processing is', n.tot, '\n'))
+write.table(to.include, paste('tmp_ind.txt', sep=''), quote=FALSE,
             row.names=FALSE, col.names=FALSE)
 
 ## ===================================
 ## Write final processed files
 ## ===================================
-## This part of code is not pretty but does the job and the fastest solution 
-#  for subsetting a large file for now. Will clean up later. 
-cat(paste('\nWriting fasta file and meta file for ', country, 
-          ', hang tight (a few mins max)! =)\n'))
-country.ind.fasta <- c(rbind(2*to.include-1, 2*to.include))
-extract.ind.f <- paste(base.dir, 'tmp_', country, '_ind_fasta.txt', sep='')
-write.table(country.ind.fasta, file=extract.ind.f,
+## This part of code is not pretty but does the job and the fastest solution
+#  for subsetting a large file for now. Will clean up later.
+cat('\nWriting master fasta file and meta file, hang tight (a few mins max)! =)\n')
+ind.fasta <- c(rbind(2*to.include-1, 2*to.include))
+extract.ind.f <- paste(base.dir, 'tmp_ind_fasta.txt', sep='')
+write.table(ind.fasta, file=extract.ind.f,
             col.names=FALSE, row.names=FALSE, quote=FALSE)
 
-getfasta.str <-  paste('sh', getfasta.sh, base.dir, extract.ind.f, 
-                       fasta.f, country, sep=' ')
+getfasta.str <-  paste('sh', getfasta.sh, base.dir, extract.ind.f,
+                       'tmp_beast.fasta', 'all_seq.fasta', sep=' ')
 system(getfasta.str) # this takes some time (1-2 mins max) to run
 
 
 ## === create corresponding meta file from GISAID meta file ===
-match.ind.country <- match(fasta.meta$gisaid_epi_isl[to.include],
-                           gisaid.meta$gisaid_epi_isl)
-stopifnot(!any(is.na(match.ind.country)))
-write.table(gisaid.meta[match.ind.country, ], 
-            file=paste(country, '_meta.tsv', sep=''),
-            sep='\t', quote=FALSE, col.names=TRUE, row.names=FALSE)
+match.ind <- match(fasta.meta$gisaid_epi_isl[to.include],
+                   gisaid.meta$gisaid_epi_isl)
+stopifnot(!any(is.na(match.ind)))
+field.include <- c("strain", "gisaid_epi_isl",  "date", "region", 
+                   "country", "division", "location",
+                   "region_exposure", "country_exposure", "division_exposure",
+                   "length", "host")
+to.write <- gisaid.meta[match.ind, field.include]
+write.table(to.write, file='all_meta.tsv', sep="\t", quote=FALSE, 
+            col.names=TRUE, row.names=FALSE)
 
-
-# === add reference sequence if necessary ===
-# GenBank: MN908947.3
-# GISAID: Wuhan-Hu-1/2019	EPI_ISL_402125
-if (add.ref.seq) {
-  # add ref to fasta
-  ref.ind <- which(fasta.meta$gisaid_epi_isl == 'EPI_ISL_402125')
-  ref.str <- paste("sed -n '", 2*ref.ind-1, ',', 2*ref.ind, "p' ",
-                   fasta.f, ' > ', 'ref.fasta')
-  system(ref.str)
-  system(paste('cat ref.fasta ', country, '.fasta > ', 
-               country, '_w_ref.fasta', sep=''))
-  
-  # for beast format header 
-  system(paste('cat ref.fasta ', country, '_beast.fasta > ', 
-               country, '_beast_w_ref.fasta', sep=''))
-  
-  # add ref to meta
-  ref.meta.ind <- which(gisaid.meta$gisaid_epi_isl == 'EPI_ISL_402125') + 1 
-  # need to add 1 to account for header
-  ref.meta.line <- system(paste("sed -n '", ref.meta.ind, "p' < ",
-                                meta.f, " > ref_meta.tsv", sep=''))
-  system(paste('cat ref_meta.tsv ', country, '_meta.tsv > ', 
-               country, '_meta_w_ref.tsv', sep=''))
-  cat('\nWuhan reference sequence added to both fasta and meta! \n')
-}
-
-system('rm tmp* exclude_ns.txt ref_meta.tsv')
+system('rm tmp* exclude_ns.txt headers_all.txt meta_fasta.tsv')
 
 cat('\n\n DONE!!! \n')
 
