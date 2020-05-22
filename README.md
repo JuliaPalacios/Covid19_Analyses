@@ -51,9 +51,12 @@ Leonardo Bonanno
 Aaron Behr
 
 ## Other Data sources:
+https://midasnetwork.us/covid-19/
+
 https://covidtracking.com/data/ 
 
 https://ourworldindata.org/
 
 https://github.com/nytimes/covid-19-data
+
 
