@@ -13,10 +13,9 @@ rm(list=ls())
 ## ==================================================
 ## Setting paths etc
 ## ==================================================
-base.dir <- '~/Documents/Covid_Analysis/alignment/data/'
-
-# the scripts don't have to be in the base.dir
-script.dir <- '~/Documents/Covid_Analysis/alignment/code/'
+git.dir <- '~/Documents/Covid_Analysis/'
+base.dir <- paste(git.dir, 'alignment/data/', sep='')
+script.dir <- paste(git.dir, 'alignment/code/', sep='')
 
 setwd(base.dir)
 fasta.f <- paste(base.dir, 'msa.fasta', sep='')
