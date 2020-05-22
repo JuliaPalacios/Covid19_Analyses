@@ -37,7 +37,6 @@ subset.fasta <- function(git.dir, ind.vec, fasta.out) {
 
 ## ==== simple demonstration ====
 git.dir <- '~/Documents/Covid_Analysis/'
-git.dir <- '~/Desktop/Coronavirus/github_public/Covid19_Analyses/'
 
 ind.vec <- c(5,4,2,6)
 fasta.out <- 'test.fasta'
