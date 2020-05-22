@@ -13,20 +13,15 @@ library(lubridate)
 base.dir <- '~/Documents/Covid_Analysis/'
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
 
-##Sequence data (aligned already)
-gisaid.aligned <- paste(data.dir, 'aligned.fasta', sep='')
-gisaidall <- read.FASTA(gisaid.aligned)
 
-meta_fig <- read.delim(paste(data.dir, '/gisaid_meta_pp.tsv', sep=''), 
+meta_fig <- read.delim2(paste(data.dir, '/all_meta.tsv', sep=''), quote="",
                            header=TRUE, sep='\t', as.is=T)
-
-## GenBank reference genome meta data
-ref.meta <- read.delim(paste(data.dir, 'genbank_MN908947_meta.txt',sep=''), header=T, as.is=T, sep='\t')
 
 countr<-length(unique(meta_fig$country))
 total.sam<-nrow(meta_fig)
 main1<-paste("A total of ",total.sam," from ",countr, "countries --",date(),collapse="")
-plot(sort(table(meta_fig$country)),cex.axis = 0.6,las=2,xlab="",ylab="Number of samples",main=main1)
+plot(sort(table(meta_fig$country)),cex.axis = 0.35,las=2,xlab="",ylab="Number of samples",main="")
+
 ```
 
 
@@ -37,18 +32,37 @@ plot(table(dates_samp),cex.axis = 0.4,las=2,xlab="",ylab="Number of samples",mai
 
 
 ```{r,echo=FALSE}
+root<-"Wuhan-Hu-1/2019"
+ref<-which(meta_fig$strain==root)
+##Sequence data (aligned already)
+#this is where I used to compute the pairwise hamming distance that is difficult 
+#will compute pairwise hamming in 4 batches
+hamminglist<-0
+fasta.out <- 'test.fasta'
+source(paste(base.dir,"alignment/code/subset_data.R",sep=""))
+
+for (j in seq(1,nrow(meta_fig),by=100)[-1]){
+print(j)
+subset.fasta(base.dir,c(ref,seq(j-100,j)), fasta.out)
+gisaid.aligned <- paste(data.dir, 'test.fasta', sep='')
+gisaidall <- read.FASTA(gisaid.aligned)
 fastafile <- as.phyDat(gisaidall)
 #Pairwise number of differences
-hamming<-as.matrix(dist.hamming(fastafile))*as.numeric(summary(gisaidall)[1])
+hamminglist<-c(hamminglist,as.matrix(dist.hamming(fastafile,ratio=FALSE))[1,-1])
+#plot(table(hamming)/2,xlab="Hamming Distance",ylab="Frequency")
+}
+subset.fasta(base.dir,c(ref,seq(j+1,length(meta_fig))), fasta.out)
+gisaid.aligned <- paste(data.dir, 'test.fasta', sep='')
+gisaidall <- read.FASTA(gisaid.aligned)
+fastafile <- as.phyDat(gisaidall)
+#Pairwise number of differences
+hamminglist<-c(hamminglist,as.matrix(dist.hamming(fastafile,ratio=FALSE))[1,-1])
 
-plot(table(hamming)/2,xlab="Hamming Distance",ylab="Frequency")
 ```
 
 
 ```{r,echo=FALSE}
-root<-"Wuhan-Hu-1/2019"
-ref<-which(meta_fig$strain==root)
-plot(table(hamming[ref,]),ylab="Frequency",xlab="Hamming distance to reference")
+plot(table(hamminglist),ylab="Frequency",xlab="Hamming distance to reference")
 ```
 
 A rough estimate of the mutation rate can be obtained by regressing genetic divergence on time divergence. This estimate ignores correlation among samples, population structure and pairwise information. A more reliable estimate can be found in the mutation section.
@@ -56,15 +70,26 @@ A rough estimate of the mutation rate can be obtained by regressing genetic dive
 ```{r,echo=FALSE}
 par(mfrow=c(1,1))
 x<-dates_samp-dates_samp[ref]
-reg<-lm(hamming[ref,]~-1+x)
+reg<-lm(hamminglist~-1+x)
 summary(reg)
 
 plot(dates_samp-dates_samp[ref],hamming[ref,],ylab="Distance to reference",xlab="Time difference (Days)",main=paste("A total of ",round(reg$coefficients[[1]]*28,2)," of mutations per month",sep=""))
 abline(reg)
-tocheck<-which(hamming[ref,]>quantile(hamming[ref,],.995))
+
+library("ggplot2")
+df <- data.frame(x_var = dates_samp-dates_samp[ref] 
+             ,y_var = hamminglist
+             )
+ggplot(data = df, aes(x = x_var, y = y_var)) + theme_bw()+
+  geom_point(color = 'red')+ggtitle(paste("A total of ",round(reg$coefficients[[1]]*28,2)," of mutations per month",sep=""))+
+  stat_smooth(method = 'lm',formula='y~-1+x')+xlab("Time difference") + ylab("Distance to reference") +ylim(0,40)
+
+
+tocheck<-which(hamminglist>quantile(hamminglist,.995))
 tocheck
 for (j in 1:length(tocheck)){
-  text(x[tocheck[j]],hamming[ref,tocheck[j]]+0.5,meta_fig[tocheck[j],1],cex=.5)
+  text(x[tocheck[j]],hamminglist[tocheck[j]]+0.5,meta_fig[tocheck[j],1],cex=.5)
+  print(meta_fig[tocheck[j],1])
 }
 ```
 
