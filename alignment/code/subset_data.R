@@ -34,36 +34,36 @@ subset.fasta <- function(git.dir, ind.vec, fasta.out) {
     system(paste('rm ', extract.ind.f))
     cat('\n======== Tada! ========= \n\n')
 }
-
-## ==== simple demonstration ====
-git.dir <- '~/Documents/Covid_Analysis/'
-
-ind.vec <- c(5,4,2,6)
-fasta.out <- 'test.fasta'
-
-subset.fasta(git.dir, ind.vec, fasta.out)
-
-## ==== subsetting for specific country ====
-meta.f <- paste(git.dir, 'alignment/data/all_meta.tsv', sep='')
-meta <- read.delim(meta.f, as.is=TRUE, sep='\t', header=TRUE)
-
-country <- 'USA'
-country.ind <- which(meta$country == country)
-fasta.out.2 <- paste(country, '.fasta', sep='')
-subset.fasta(git.dir, country.ind, fasta.out.2)
-
-## ===== extracting single sequence also works! =====
-# Let's extract reference genome
-# GenBank: MN908947.3
-# GISAID: Wuhan-Hu-1/2019	EPI_ISL_402125
-ref.ind <- which(meta$gisaid_epi_isl == 'EPI_ISL_402125')
-fasta.out.3 <- 'ref.fasta'
-subset.fasta(git.dir, ref.ind, fasta.out.3)
-
-
-
-
-
-
-
-
+# 
+# ## ==== simple demonstration ====
+# git.dir <- '~/Documents/Covid_Analysis/'
+# 
+# ind.vec <- c(5,4,2,6)
+# fasta.out <- 'test.fasta'
+# 
+# subset.fasta(git.dir, ind.vec, fasta.out)
+# 
+# ## ==== subsetting for specific country ====
+# meta.f <- paste(git.dir, 'alignment/data/all_meta.tsv', sep='')
+# meta <- read.delim(meta.f, as.is=TRUE, sep='\t', header=TRUE)
+# 
+# country <- 'USA'
+# country.ind <- which(meta$country == country)
+# fasta.out.2 <- paste(country, '.fasta', sep='')
+# subset.fasta(git.dir, country.ind, fasta.out.2)
+# 
+# ## ===== extracting single sequence also works! =====
+# # Let's extract reference genome
+# # GenBank: MN908947.3
+# # GISAID: Wuhan-Hu-1/2019	EPI_ISL_402125
+# ref.ind <- which(meta$gisaid_epi_isl == 'EPI_ISL_402125')
+# fasta.out.3 <- 'ref.fasta'
+# subset.fasta(git.dir, ref.ind, fasta.out.3)
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
