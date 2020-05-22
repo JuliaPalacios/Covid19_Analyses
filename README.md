@@ -50,6 +50,8 @@ Leonardo Bonanno
 
 Aaron Behr
 
+Samyak Rajanala
+
 ## Other Data sources:
 https://midasnetwork.us/covid-19/
 
