@@ -5,15 +5,11 @@ In this repository we report our analyses of publicly available genomic sequence
 
 This is an ongoing project. Please refer to [todo](https://github.com/JuliaPalacios/Covid19_Analyses/tree/master/todo) if you would like to contribute on a certain topic.
 
-1. Data pre-processing. [Preprocess](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/alignment/alignment.md). Alignment file is called aligned.fasta and deposited in your local data folder. Exploratory plots can be found [here](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/Rcode/Initial_analysis.Rmd)
+1. Data pre-processing. We need to download the msa and metadata files directly from Gisaid. Sequences are already aligned. We need to place those files in the data folder. We then need to run quality_check.R. This code will place two new files in your data folder.
 
-
-
-
+2. Quick estimates are generated with fast_covid.R
 
 2. Estimates of Mutation rate
-
-
 
 
 3. Population Structure
