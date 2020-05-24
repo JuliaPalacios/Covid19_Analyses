@@ -60,8 +60,13 @@ compute_tree <- function(country, division = NULL) {
 
   print("Importing fasta file into R")
   gisaid_aligned_country <- ape::read.FASTA(fasta_subset_fp)
-  fastafile_1 <- phangorn::as.phyDat(gisaid_aligned_country) # includes root
-  fastafile_2 <- fastafile_1[-length(fastafile_1)] # does not include root
+  fastafile <- phangorn::as.phyDat(gisaid_aligned_country) # includes root
+  ref <- which(names(fastafile) == 
+                 "hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31")
+  fastafile_2 <- fastafile[-ref] # does not include ref
+  fastafile_1 <- c(fastafile_2, fastafile[ref]) # includes ref at end
+  # Note: important to include ref at the end, because the function to estimate
+  # mutation rate expects this order.
 
   print("Parsing sampling times from fasta")
   seq_names <- names(fastafile_2)
