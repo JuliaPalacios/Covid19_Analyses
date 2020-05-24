@@ -1,4 +1,3 @@
-
 alignment/data/20200522/metadata_2020-05-22_20-10.tsv.gz
 alignment/data/20200522/msa_0522.zip
 alignment/data/20200524/all_meta.tsv
@@ -19,3 +18,7 @@ alignment/data/20200524/tmp_beast.fasta
 alignment/data/headers_all.txt
 alignment/data/test.fasta
 Rcode/.Rhistory
+
+*.code-workspace
+.Rhistory
+.DS_Store
