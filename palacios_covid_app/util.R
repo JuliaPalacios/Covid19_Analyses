@@ -1,4 +1,8 @@
 
+get_latest_data_dir <- function() {
+  data_dirs <- list.dirs(path = "./data", recursive = F)
+  latest_data_dir <- sort(data_dirs, decreasing = T)[[1]]
+}
 
 reformat_country <- function(country) {
   if (country == "USA") {

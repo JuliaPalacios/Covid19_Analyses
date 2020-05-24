@@ -4,23 +4,31 @@ library(ape)
 library(lubridate)
 library(INLA)
 
-# All paths must be relative within the shinyapp so it will work when uploaded
+# All paths must be *relative* within the shinyapp so it will work in the 
+# app when it's packaged & uploaded
 source("util.R") # utils for UI and Server
-source("function_serial.R") # TODO: Copied from JuliaPalacios GitHub -- may be stale
-data_dir <- "./data"
+data_dir <- get_latest_data_dir()
+
+# Load data files and helper scripts and verify they all exist
+function_serial_script <- file.path(data_dir, "function_serial.R")
 meta_fp <- file.path(data_dir, "all_meta.tsv")
 cases_fp <- file.path(data_dir, "owid-covid-data.csv")
+trees_dir <- file.path(data_dir, "trees")
+for (f in c(function_serial_script, meta_fp, cases_fp)) {
+  stopifnot(file.exists(f))
+}
+stopifnot(dir.exists(trees_dir))
+stopifnot(length(list.files(trees_dir)) > 0)
+source(function_serial_script)
 
-# ========== Load metadata ==========
+# ========== Load latest metadata ==========
 meta_fig <- read.delim(meta_fp, header = T, sep = "\t", as.is = T)
 cases_all <- read.csv(file = cases_fp, header = T)
 
-# ========== Load data ==========
-# get most recent computed trees
-trees_dir <- list.dirs(path = data_dir, recursive = F)
-trees_dir <- sort(trees_dir, decreasing = T)[[1]]
+# ========== Load data (latest computed trees) ==========
 trees <- list()
 for (f in list.files(trees_dir)) {
+  stopifnot(tools::file_ext(f) == "tre")
   tree_meta <- parse_tree_filename(f)
   tree <- read.tree(file.path(trees_dir, f))
   trees[[tree_meta$country]] <- list(tree = tree, lastdate = tree_meta$lastdate)
