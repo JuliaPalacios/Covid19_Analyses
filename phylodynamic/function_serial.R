@@ -6,7 +6,7 @@
 
 #correct distance matrix if we are in the heterochrnous case. 
 correct_distance_het2<-function(n_sample,samplingdates,dm1){
-  n1<-dim(name_samp)[1]
+  n1<-n_sample
   c1=matrix(rep(samplingdates,n1),n1,n1,byrow=FALSE)
   c2=matrix(rep(samplingdates,n1),n1,n1,byrow=TRUE)
   correction=c1+c2-2*diag(samplingdates)
