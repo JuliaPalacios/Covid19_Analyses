@@ -22,3 +22,7 @@ Rcode/.Rhistory
 *.code-workspace
 .Rhistory
 .DS_Store
+alignment/data/all_seq.fasta
+alignment/data/all_meta.tsv
+palacios_covid_app/data
+palacios_covid_app/rsconnect
