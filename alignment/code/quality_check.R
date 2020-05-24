@@ -13,7 +13,8 @@ rm(list=ls())
 ## ==================================================
 ## Setting paths etc
 ## ==================================================
-git.dir <- '~/Documents/Covid_Analysis/'
+# git.dir <- '~/Documents/Covid_Analysis/'
+git.dir <- '~/Desktop/Coronavirus/github_public/Covid19_Analyses/'
 base.dir <- paste(git.dir, 'alignment/data/', sep='')
 script.dir <- paste(git.dir, 'alignment/code/', sep='')
 
@@ -54,7 +55,7 @@ if (download.flag) {
 system(paste("sed '/#/d; /^$/d' exclude.txt > exclude_ns.txt", sep=''))
 exclude.seq <- read.table(file='exclude_ns.txt',
                           header=FALSE, as.is=TRUE, col.names='strain')
-to.include.1 <-  !(fasta.meta$gisaid_epi_isl %in% exclude.seq$strain)
+to.include.1 <-  !(fasta.meta$meta.id %in% exclude.seq$strain)
 cat(paste('\nNumber of sequences NOT in the exclude.txt is', sum(to.include.1), '\n'))
 
 
