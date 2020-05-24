@@ -24,5 +24,6 @@ Rcode/.Rhistory
 .DS_Store
 alignment/data/all_seq.fasta
 alignment/data/all_meta.tsv
+alignment/data/owid-covid-data.csv
 palacios_covid_app/data
 palacios_covid_app/rsconnect
