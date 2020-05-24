@@ -26,11 +26,11 @@ fluidPage(
     )
   ),
   fluidRow(
-    column(6, plotOutput("tree_plot")),
-    column(6, plotOutput("case_plot"))
+    column(6, withSpinner(plotOutput("tree_plot"))),
+    column(6, withSpinner(plotOutput("case_plot")))
   ),
   fluidRow(
-    column(6, plotOutput("eps_plot")),
-    column(6, plotOutput("eps_plot_ps"))
+    column(6, withSpinner(plotOutput("eps_plot"))),
+    column(6, withSpinner(plotOutput("eps_plot_ps")))
   )
 )
