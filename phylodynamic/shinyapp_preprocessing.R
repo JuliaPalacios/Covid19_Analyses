@@ -17,7 +17,24 @@ app_dir <- file.path(base_dir, "palacios_covid_app")
 
 # Load other code from repo
 source(file.path(base_dir, "phylodynamic/function_serial.R"))
-source(file.path(base_dir, "alignment/code/subset_data.R"))
+copy_fasta_subset_script <- file.path(base_dir, "alignment/code/copy_lines.pl")
+
+
+subset_fasta <- function(subset_fp, inds) {
+  # Copied from subset_data.R
+  inds <- sort(inds)
+  fasta_lines <- c(rbind(2*inds-1, 2*inds))
+
+  fasta_lines_tmp_fp <- paste(subset_fp, "_lines.bak", sep="")
+  write.table(fasta_lines, file=fasta_lines_tmp_fp, col.names=FALSE, 
+      row.names=FALSE, quote=FALSE)
+
+  script_call <- paste("perl", copy_fasta_subset_script, fasta_lines_tmp_fp, 
+      gisaid_aligned_fp, ">", subset_fp)
+  
+  system(script_call)
+  file.remove(fasta_lines_tmp_fp)
+}
 
 
 compute_tree <- function(country, division = NULL) {
@@ -29,9 +46,11 @@ compute_tree <- function(country, division = NULL) {
   }
   subs <- c(subs2, idx_root)
 
-  fasta_subset_fp <- file.path(data_dir, paste("fastasub_", format(Sys.time(),
-    "%Y%m%d%H%M%S", tz = "UTC"), ".fasta", sep = ""))
-  subset.fasta(paste(base_dir, "/", sep = ""), subs, fasta_subset_fp)
+  fasta_subset_fp <- file.path(data_dir, paste("fastasub_", 
+      gsub(" ", "-", country), "_", format(Sys.time(), "%Y%m%d%H%M%S", 
+      tz = "UTC"), ".fasta", sep = ""))
+  print(paste("Creating subset fasta file", fasta_subset_fp))
+  subset_fasta(fasta_subset_fp, subs)
   stopifnot(file.exists(fasta_subset_fp))
 
   print("Importing fasta file into R")
@@ -54,7 +73,6 @@ compute_tree <- function(country, division = NULL) {
 
   mu <- mu_linear_reg(fastafile_1)
   print(paste("mu =", mu))
-  # fastafile_2 <- fastafile_1[-length(fastafile_1)] # TODO is this any different?
   tree <- serial_upgma(fastafile_2, mu, samp_times, name_samp, model = "F81")
   stopifnot(length(tree) == 4) # verify tree has been constructed properly
 
@@ -78,18 +96,21 @@ if (write_tree_files) {
       "%Y%m%d%H%M%S", tz = "UTC"))
   dir.create(trees_dir)
 }
-for (country in sort(unique(meta_fig$country))) {
-  if (length(which(meta_fig$country == country)) < 20) {
-    print(paste("Skipping ", country, "(<20 seqs)"))
+for (c in sort(unique(meta_fig$country))) {
+  if (length(which(meta_fig$country == c)) < 20) {
+    print(paste("Skipping ", c, "(<20 seqs)"))
+  } else if (length(which(meta_fig$country == c)) > 10000) {
+    print(paste("Skipping ", c, "(>10000 seqs)"))
   } else {
-    print(paste("Computing tree for", country))
-    treedata <- compute_tree(country)
+    print(paste("Computing tree for", c))
+    treedata <- compute_tree(c)
     if (write_tree_files) {
-      filename <- paste(country, "_", treedata$lastdate, ".tre", sep = "")
+      filename <- paste(c, "_", treedata$lastdate, ".tre", sep = "")
       write.tree(treedata$tree, file = file.path(trees_dir, filename))
     }
   }
 }
+
 
 # ========== copy/replace source files & data in the app ==========
 # Need to copy some files over to the ShinyApp.
