@@ -13,8 +13,8 @@ function(input, output) {
     # total cases will exceed ylim in the plot, you can add
     # ylim=c(0, max(cases$total_cases)) but it will dwarf everything else
     plot(dates, cases$new_cases,
-      type = "l", xaxt = "n", main = country,
-      ylab = "Count Data", xlab = "", lwd = 2
+      type = "l", xaxt = "n", main = "Case Data",
+      ylab = "Count", xlab = "", lwd = 2
     ) # ---------------------------- CASES PLOT
     axlabs2 <- list(
       x = date.labs, labs = format(date_decimal(date.labs), "%b-%d"),
@@ -38,7 +38,8 @@ function(input, output) {
   })
 
   output$tree_plot <- renderPlot({
-    plot(trees[[input$selectedCountry]]$tree, show.tip.label = FALSE, cex = .3)
+    plot(trees[[input$selectedCountry]]$tree, show.tip.label = FALSE, cex = .3,
+         main = "UPGMA Tree")
   })
 
   output$eps_plot <- renderPlot({
@@ -52,7 +53,8 @@ function(input, output) {
       bnp_cache[[country]] <<- bnp # set global var
     }
     axlabs <- axis_label(bnp, trees[[country]]$lastdate, byy = 4 / 365)
-    plot_BNPR2(bnp, axlabs = axlabs, log = "", main = country)
+    plot_BNPR2(bnp, axlabs = axlabs, log = "", 
+               main = "Effective Population Size (EPS)")
   })
 
   output$eps_plot_ps <- renderPlot({
@@ -65,6 +67,6 @@ function(input, output) {
     }
     axlabs <- axis_label(bnp_ps, trees[[country]]$lastdate, byy = 4 / 365)
     plot_BNPR2(bnp_ps, axlabs = axlabs, log = "",
-        main = paste(country, " PS", sep = ""))
+        main = "EPS - Preferential Sampling")
   })
 }
