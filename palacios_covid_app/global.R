@@ -3,6 +3,8 @@ library(phylodyn)
 library(ape)
 library(lubridate)
 library(INLA)
+library(shinycssloaders)
+
 
 # All paths must be *relative* within the shinyapp so it will work in the 
 # app when it's packaged & uploaded
