@@ -6,23 +6,29 @@ library(INLA)
 
 # Env settings
 base_dir <- "~/script_dev/juliapr/Covid19_Analyses"
-write_tree_files <- TRUE
 delete_fasta_subset_files <- TRUE
 
-# These should not change between user envs unless git fs changes
+# Files and scripts from elsewhere in the repository. These should not change 
+# between user envs unless git fs changes
+copy_fasta_subset_script <- file.path(base_dir, "alignment/code/copy_lines.pl")
+function_serial_script <- file.path(base_dir, "phylodynamic/function_serial.R")
 data_dir <- file.path(base_dir, "alignment/data")
 gisaid_aligned_fp <- file.path(data_dir, "all_seq.fasta")
 meta_fp <- file.path(data_dir, "all_meta.tsv")
+cases_fp <- file.path(data_dir, "owid-covid-data.csv")
 app_dir <- file.path(base_dir, "palacios_covid_app")
 
-# Load other code from repo
-source(file.path(base_dir, "phylodynamic/function_serial.R"))
-copy_fasta_subset_script <- file.path(base_dir, "alignment/code/copy_lines.pl")
+# Make sure everything we need exists before proceeding
+for (f in c(copy_fasta_subset_script, function_serial_script, gisaid_aligned_fp, 
+            meta_fp, cases_fp)) {
+  stopifnot(file.exists(f))
+}
+stopifnot(dir.exists(file.path(app_dir, "data")))
+source(function_serial_script)
 
-
+# ========== Local functions ==========
 subset_fasta <- function(subset_fp, inds) {
-  # Copied from subset_data.R
-  inds <- sort(inds)
+  # Adapted from subset_data.R
   fasta_lines <- c(rbind(2*inds-1, 2*inds))
 
   fasta_lines_tmp_fp <- paste(subset_fp, "_lines.bak", sep="")
@@ -35,7 +41,6 @@ subset_fasta <- function(subset_fp, inds) {
   system(script_call)
   file.remove(fasta_lines_tmp_fp)
 }
-
 
 compute_tree <- function(country, division = NULL) {
   if (is.null(division)) {
@@ -83,34 +88,64 @@ compute_tree <- function(country, division = NULL) {
   return(list(tree = tree, lastdate = lastdate))
 }
 
+summarize_metadata <- function() {
+  print(paste("A total of ", nrow(meta_fig), " samples from ",
+        length(unique(meta_fig$country)), "countries --", date(), collapse=""))
+  par(mfrow=c(1,2))
+  plot(sort(table(meta_fig$country)),cex.axis = 0.35,las=2,
+       xlab="",ylab="",main="Samples per country")
+  plot(sort(table(meta_fig$division[meta_fig$country=="USA"])), cex.axis=.35, 
+       las=2, xlab="", ylab="", main="Samples per US state")
+}
+
+check_country_name_consistency <- function() {
+  # Check for any instances where the country names do not match between the
+  # GISAID metadata dataset and the "owid-covid-data" cases dataset.
+  unmatched = c()
+  meta.countries = unique(meta_fig$country)
+  cases.countries = unique(cases_all$location)
+  for (c in meta.countries) {
+    if (!is.element(c, cases.countries)) {
+      unmatched = c(unmatched, c)
+    }
+  }
+  print("Could not find exact match country names between datasets for:")
+  print(unmatched)
+  print(paste("Make sure all unmatched countries are properly handled in the",
+              "app by util::reformat_country."))
+}
+
+
 # ========== Load data ==========
 meta_fig <- read.delim(meta_fp, header = T, sep = "\t", as.is = T)
+summarize_metadata()
 
 idx_root <- which(meta_fig$strain == "Wuhan-Hu-1/2019")
 
-# Currently there's no valid workflow where this flag could be false, but
-# it could potentially be useful in the future for auto upload if this
-# functionality is moved into the app.
-if (write_tree_files) {
-  trees_dir <- file.path(app_dir, "data", format(Sys.time(),
-      "%Y%m%d%H%M%S", tz = "UTC"))
-  dir.create(trees_dir)
-}
+app_data_dir <- file.path(app_dir, "data", format(Sys.time(),
+    "%Y%m%d%H%M%S", tz = "UTC"))
+dir.create(app_data_dir)
+trees_dir <- file.path(app_data_dir, "trees")
+dir.create(trees_dir)
+
 for (c in sort(unique(meta_fig$country))) {
   if (length(which(meta_fig$country == c)) < 20) {
     print(paste("Skipping ", c, "(<20 seqs)"))
-  } else if (length(which(meta_fig$country == c)) > 10000) {
-    print(paste("Skipping ", c, "(>10000 seqs)"))
+  } else if (length(which(meta_fig$country == c)) > 5000) {
+    print(paste("Skipping ", c, "(>5000 seqs)"))
   } else {
     print(paste("Computing tree for", c))
     treedata <- compute_tree(c)
-    if (write_tree_files) {
-      filename <- paste(c, "_", treedata$lastdate, ".tre", sep = "")
-      write.tree(treedata$tree, file = file.path(trees_dir, filename))
-    }
+    filename <- paste(c, "_", treedata$lastdate, ".tre", sep = "")
+    write.tree(treedata$tree, file = file.path(trees_dir, filename))
   }
 }
 
 
+
 # ========== copy/replace source files & data in the app ==========
-# Need to copy some files over to the ShinyApp.
+# The ShinyApp needs to be standalone so any local dependencies must be copied
+# into the app's data dir. We won't track any of it though because it will all
+# be redundant and will be overwritten every time this file is run. 
+file.copy(from=c(function_serial_script, meta_fp, cases_fp),
+          to=app_data_dir, overwrite=T, recursive=F, copy.mode=T)
