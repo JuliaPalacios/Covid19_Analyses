@@ -29,7 +29,7 @@ plot(sort(table(meta_fig$country)),cex.axis = 0.35,las=2,xlab="",ylab="Number of
 
 #fastafile<-fastafile[meta]
 #Read fasta file, choose country. fastafile includes the ancestral reference.
-country<-"Spain"
+country<-"Algeria"
 subs<-c(seq(1,nrow(meta_fig))[meta_fig$country==country],which(meta_fig$strain=="Wuhan-Hu-1/2019"))
 
 fasta.out <- 'test.fasta'
@@ -37,6 +37,8 @@ subset.fasta(base.dir,subs, fasta.out)
 gisaid.aligned <- paste(data.dir, 'test.fasta', sep='')
 gisaidall <- read.FASTA(gisaid.aligned)
 fastafile <- as.phyDat(gisaidall)
+ref<-which(names(fastafile)=="hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31")
+fastafile<-fastafile[c(seq(1,length(fastafile))[-ref],ref)]
 fastafile2<-fastafile[-length(fastafile)]
 
 # If you want to filter some sites for quality issues
@@ -85,6 +87,7 @@ name_samp<-cbind(samp_times,seq_names)
 # fastafile_1 = read.FASTA(paste(base.dir, 'alignment/BEAST/fasta',country,'.fasta', sep=''))
 # fastafile_1<-as.phyDat(fastafile_1)
 # 
+
 
 mu<-mu_linear_reg(fastafile)
 mu
