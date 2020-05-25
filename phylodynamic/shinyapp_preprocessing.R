@@ -37,19 +37,26 @@ subset_fasta <- function(subset_fp, inds) {
 
   script_call <- paste("perl", copy_fasta_subset_script, fasta_lines_tmp_fp, 
       gisaid_aligned_fp, ">", subset_fp)
-  
+
   system(script_call)
   file.remove(fasta_lines_tmp_fp)
 }
 
-compute_tree <- function(country, division = NULL) {
+compute_tree <- function(country, max_seqs = 2000, division = NULL) {
   if (is.null(division)) {
-    subs2 <- seq(1, nrow(meta_fig))[meta_fig$country == country]
+    subs <- seq(1, nrow(meta_fig))[meta_fig$country == country]
   } else {
-    subs2 <- seq(1, nrow(meta_fig))[meta_fig$country == country &&
+    subs <- seq(1, nrow(meta_fig))[meta_fig$country == country &&
       meta_fig$division == division]
   }
-  subs <- c(subs2, idx_root)
+
+  # Sample 2k random sequences if the total number exceeds this threshold
+  if (length(subs) > max_seqs) {
+    print(paste("Too many sequences - taking random sample of", max_seqs))
+    subs <- sample(subs, max_seqs)
+  }
+
+  subs <- c(subs, idx_root)
 
   fasta_subset_fp <- file.path(data_dir, paste("fastasub_", 
       gsub(" ", "-", country), "_", format(Sys.time(), "%Y%m%d%H%M%S", 
@@ -63,7 +70,7 @@ compute_tree <- function(country, division = NULL) {
   fastafile <- phangorn::as.phyDat(gisaid_aligned_country) # includes root
   ref <- which(names(fastafile) == 
                  "hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31")
-  
+
   # Note: important to include ref at the end, because the function to estimate
   # mutation rate expects this order. Also, note that you need to be careful
   # with how you copy/collate/produce these vars. For example, 
