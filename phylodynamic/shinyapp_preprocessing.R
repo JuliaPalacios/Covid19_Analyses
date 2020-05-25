@@ -110,12 +110,13 @@ summarize_metadata <- function() {
 check_country_name_consistency <- function() {
   # Check for any instances where the country names do not match between the
   # GISAID metadata dataset and the "owid-covid-data" cases dataset.
-  unmatched = c()
-  meta.countries = unique(meta_fig$country)
-  cases.countries = unique(cases_all$location)
-  for (c in meta.countries) {
-    if (!is.element(c, cases.countries)) {
-      unmatched = c(unmatched, c)
+  cases_all <- read.csv(file = cases_fp, header = T)
+  unmatched <- c()
+  meta_countries <- unique(meta_fig$country)
+  cases_countries <- unique(cases_all$location)
+  for (c in meta_countries) {
+    if (!is.element(c, cases_countries)) {
+      unmatched <- c(unmatched, c)
     }
   }
   print("Could not find exact match country names between datasets for:")
@@ -140,16 +141,16 @@ dir.create(trees_dir)
 for (c in countries) {
   nseq <- length(which(meta_fig$country == c))
   if (nseq < 20 || nseq > 10000) {
-    print(paste0("----- Skipping ", c, "(", nseq, " seqs)"))
+    print(paste0("----- Skipping ", c, " (", nseq, " seqs) -----"))
   } else {
-    print(paste0("----- Computing tree for ", c, "(", nseq, " seqs) -----"))
+    print(paste0("----- Computing tree for ", c, " (", nseq, " seqs) -----"))
     treedata <- compute_tree(c)
     filename <- paste(c, "_", treedata$lastdate, ".tre", sep = "")
     write.tree(treedata$tree, file = file.path(trees_dir, filename))
   }
 }
 
-
+check_country_name_consistency()
 
 # ========== copy/replace source files & data in the app ==========
 # The ShinyApp needs to be standalone so any local dependencies must be copied
