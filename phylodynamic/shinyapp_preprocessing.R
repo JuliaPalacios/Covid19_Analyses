@@ -63,25 +63,29 @@ compute_tree <- function(country, division = NULL) {
   fastafile <- phangorn::as.phyDat(gisaid_aligned_country) # includes root
   ref <- which(names(fastafile) == 
                  "hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31")
-  fastafile_2 <- fastafile[-ref] # does not include ref
-  fastafile_1 <- c(fastafile_2, fastafile[ref]) # includes ref at end
+  
   # Note: important to include ref at the end, because the function to estimate
-  # mutation rate expects this order.
+  # mutation rate expects this order. Also, note that you need to be careful
+  # with how you copy/collate/produce these vars. For example, 
+  # c(fastafile, fastafile[idx]) will yield a different dtype (even though it
+  # looks the same when being viewed and has the same `typeof` value).
+  fastafile <- fastafile[c(seq(1, length(fastafile))[-ref], ref)]
+  fastafile_2 <- fastafile[-length(fastafile)] # exclude ref
 
-  print("Parsing sampling times from fasta")
   seq_names <- names(fastafile_2)
   samp_times <- c()
   for (r in seq_names) {
     # the format of this line has changed in prev iterations of the fasta file
     samp_times <- c(samp_times, strsplit(r, "[|]")[[1]][3])
   }
-  print(paste("e.g.", samp_times[[1]]))
+  print(paste("Parsed sampling times from fasta, e.g.", samp_times[[1]]))
   samp_times <- lubridate::decimal_date(lubridate::date(samp_times))
   lastdate <- max(samp_times)
   samp_times <- lastdate - samp_times # normalize by lastdate
   name_samp <- cbind(samp_times, seq_names) # 2-column matrix (date & seq name)
-
-  mu <- mu_linear_reg(fastafile_1)
+  
+  print("Estimating mutation rate")
+  mu <- mu_linear_reg(fastafile)
   print(paste("mu =", mu))
   tree <- serial_upgma(fastafile_2, mu, samp_times, name_samp, model = "F81")
   stopifnot(length(tree) == 4) # verify tree has been constructed properly
@@ -133,13 +137,12 @@ dir.create(app_data_dir)
 trees_dir <- file.path(app_data_dir, "trees")
 dir.create(trees_dir)
 
-for (c in sort(unique(meta_fig$country))) {
-  if (length(which(meta_fig$country == c)) < 20) {
-    print(paste("Skipping ", c, "(<20 seqs)"))
-  } else if (length(which(meta_fig$country == c)) > 5000) {
-    print(paste("Skipping ", c, "(>5000 seqs)"))
+for (c in countries) {
+  nseq <- length(which(meta_fig$country == c))
+  if (nseq < 20 || nseq > 10000) {
+    print(paste0("----- Skipping ", c, "(", nseq, " seqs)"))
   } else {
-    print(paste("Computing tree for", c))
+    print(paste0("----- Computing tree for ", c, "(", nseq, " seqs) -----"))
     treedata <- compute_tree(c)
     filename <- paste(c, "_", treedata$lastdate, ".tre", sep = "")
     write.tree(treedata$tree, file = file.path(trees_dir, filename))
