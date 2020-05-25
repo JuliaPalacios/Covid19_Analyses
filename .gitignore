@@ -1,0 +1,12 @@
+
+*.fasta
+*.gz
+*.tsv
+*.zip
+alignment/data/.Rhistory
+alignment/data/exclude.txt
+alignment/data/exclude_ns.txt
+alignment/data/headers_all.txt
+alignment/data/README.txt
+alignment/data/tmp_ind.txt
+Rcode/.Rhistory

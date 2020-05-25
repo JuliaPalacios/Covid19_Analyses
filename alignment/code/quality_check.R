@@ -13,29 +13,34 @@ rm(list=ls())
 ## ==================================================
 ## Setting paths etc
 ## ==================================================
-# git.dir <- '~/Documents/Covid_Analysis/'
-git.dir <- '~/Desktop/Coronavirus/github_public/Covid19_Analyses/'
-base.dir <- paste(git.dir, 'alignment/data/', sep='')
-script.dir <- paste(git.dir, 'alignment/code/', sep='')
+date <- "20200524"
+
+git_root <- rprojroot::has_file(".git/index")
+base.dir <- file.path(git_root$find_file("alignment", "data", date))
+script.dir <- file.path(git_root$find_file("alignment", "code"))
 
 setwd(base.dir)
-fasta.f <- paste(base.dir, 'msa.fasta', sep='')
-meta.f <- paste(base.dir, 'metadata.tsv', sep='')
-getmeta.sh <- paste(script.dir, 'get_meta_all.sh', sep='') 
-getfasta.sh <- paste(script.dir, 'subset_fasta.sh', sep='')
+fasta.f <- file.path(base.dir, "msa_0522.fasta")
+meta.f <- file.path(base.dir, "metadata.tsv")
+getmeta.sh <- file.path(script.dir, "get_meta_all.sh") 
+getfasta.sh <- file.path(script.dir, "subset_fasta.sh")
 
+my <- function(str){
+  if(.Platform$OS.type == "windows") gsub("/", "//", str)
+  else str
+}
 
 ## ===================================================================
 ## get header info from fasta file and generate meta file based on it
 ## ===================================================================
-getmeta.str <- paste('sh', getmeta.sh, base.dir, fasta.f, sep=' ')
+getmeta.str <- paste('sh', my(getmeta.sh), my(base.dir), my(fasta.f), sep=' ')
 system(getmeta.str)
 
 
 ## =========================================================
 ## quality check and get subset index for quality filtering
 ## =========================================================
-fasta.meta <- read.delim(paste(base.dir, 'meta_fasta.tsv', sep=''),
+fasta.meta <- read.delim(file.path(base.dir, 'meta_fasta.tsv'),
                          as.is=TRUE, header=FALSE)
 colnames(fasta.meta) <- c('meta.id', 'gisaid_epi_isl', 'date', 'division')
 
@@ -55,7 +60,7 @@ if (download.flag) {
 system(paste("sed '/#/d; /^$/d' exclude.txt > exclude_ns.txt", sep=''))
 exclude.seq <- read.table(file='exclude_ns.txt',
                           header=FALSE, as.is=TRUE, col.names='strain')
-to.include.1 <-  !(fasta.meta$meta.id %in% exclude.seq$strain)
+to.include.1 <-  !(fasta.meta$gisaid_epi_isl %in% exclude.seq$strain)
 cat(paste('\nNumber of sequences NOT in the exclude.txt is', sum(to.include.1), '\n'))
 
 
@@ -84,11 +89,11 @@ write.table(to.include, paste('tmp_ind.txt', sep=''), quote=FALSE,
 #  for subsetting a large file for now. Will clean up later.
 cat('\nWriting master fasta file and meta file, hang tight (a few mins max)! =)\n')
 ind.fasta <- c(rbind(2*to.include-1, 2*to.include))
-extract.ind.f <- paste(base.dir, 'tmp_ind_fasta.txt', sep='')
+extract.ind.f <- file.path(base.dir, 'tmp_ind_fasta.txt')
 write.table(ind.fasta, file=extract.ind.f,
             col.names=FALSE, row.names=FALSE, quote=FALSE)
 
-getfasta.str <-  paste('sh', getfasta.sh, base.dir, extract.ind.f,
+getfasta.str <-  paste('sh', my(getfasta.sh), my(base.dir), my(extract.ind.f),
                        'tmp_beast.fasta', 'all_seq.fasta', sep=' ')
 system(getfasta.str) # this takes some time (1-2 mins max) to run
 

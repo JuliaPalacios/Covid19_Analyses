@@ -12,24 +12,24 @@ subset.fasta <- function(git.dir, ind.vec, fasta.out) {
     #   The order of the sequences are sorted(ind.vec) order.
     
     stopifnot(is.vector(ind.vec))
-    data.dir <- paste(git.dir, 'alignment/data/', sep='')
-    script.dir <- paste(git.dir, 'alignment/code/', sep='')
-    fasta.in <- paste(data.dir, 'all_seq.fasta', sep='')
+    data.dir <- file.path(git.dir, "alignment", "data")
+    script.dir <- file.path(git.dir, "alignment", "code")
+    fasta.in <- file.path(data.dir, 'all_seq.fasta')
     
     cat(paste('data.dir containing all_seq.fasta is', data.dir, '\n'))
     cat(paste('script.dir containing subset_fasta.sh is', script.dir, '\n\n'))
     
-    ind.vec <- sort(ind.vec)
+    ind.vec <- sort(unique(ind.vec))
     ind.fasta <- c(rbind(2*ind.vec-1, 2*ind.vec))
-    extract.ind.f <- paste(data.dir, 'tmp_ind_fasta.txt', sep='')
+    extract.ind.f <- file.path(data.dir, 'tmp_ind_fasta.txt')
     write.table(ind.fasta, file=extract.ind.f,
                 col.names=FALSE, row.names=FALSE, quote=FALSE)
     
     cat(paste('Subsetting', length(ind.vec), 'number of sequences from all_seq.fasta \n'))
     cat('\nWriting a large file can take a few mins. \n')
-    getfasta.str <-  paste('sh ', script.dir, 'subset_fasta.sh ',
-                           data.dir, ' ', extract.ind.f, ' ',
-                           fasta.in, ' ', fasta.out, sep='')
+    getfasta.str <-  paste('sh ', my(script.dir), '//subset_fasta.sh ',
+                           my(data.dir), ' ', my(extract.ind.f), ' ',
+                           my(fasta.in), ' ', my(fasta.out), sep='')
     system(getfasta.str) # this takes some time (1-2 mins max) to run
     system(paste('rm ', extract.ind.f))
     cat('\n======== Tada! ========= \n\n')
@@ -44,7 +44,7 @@ subset.fasta <- function(git.dir, ind.vec, fasta.out) {
 # subset.fasta(git.dir, ind.vec, fasta.out)
 # 
 # ## ==== subsetting for specific country ====
-# meta.f <- paste(git.dir, 'alignment/data/all_meta.tsv', sep='')
+# meta.f <- file.path(git.dir, 'alignment/data/all_meta.tsv')
 # meta <- read.delim(meta.f, as.is=TRUE, sep='\t', header=TRUE)
 # 
 # country <- 'USA'

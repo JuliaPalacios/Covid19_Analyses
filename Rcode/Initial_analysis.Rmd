@@ -10,11 +10,19 @@ library(ape)
 library(phangorn)
 library(lubridate)
 
-base.dir <- '~/Documents/Covid_Analysis/'
-data.dir <- paste(base.dir, 'alignment/data/', sep='')
+my <- function(str){
+  if(.Platform$OS.type == "windows") gsub("/", "//", str)
+  else str
+}
+
+git.root <- rprojroot::has_file(".git/index")
 
 
-meta_fig <- read.delim2(paste(data.dir, '/all_meta.tsv', sep=''), quote="",
+base.dir <- git.root$find_file()
+data.dir <- file.path(base.dir, "alignment", "data")
+
+
+meta_fig <- read.delim2(file.path(data.dir, 'all_meta.tsv'), quote="",
                            header=TRUE, sep='\t', as.is=T)
 
 countr<-length(unique(meta_fig$country))
@@ -37,26 +45,38 @@ ref<-which(meta_fig$strain==root)
 ##Sequence data (aligned already)
 #this is where I used to compute the pairwise hamming distance that is difficult 
 #will compute pairwise hamming in 4 batches
-hamminglist<-0
+hamminglist <- 0
 fasta.out <- 'test.fasta'
-source(paste(base.dir,"alignment/code/subset_data.R",sep=""))
+source(file.path(base.dir, "alignment", "code", "subset_data.R"))
 
-for (j in seq(1,nrow(meta_fig),by=100)[-1]){
+
+
+for (j in seq(1,nrow(meta_fig),by=1000)[-1]){
 print(j)
-subset.fasta(base.dir,c(ref,seq(j-100,j)), fasta.out)
-gisaid.aligned <- paste(data.dir, 'test.fasta', sep='')
+subset.fasta(base.dir,c(ref,seq(j-1000,j-1)), fasta.out)
+gisaid.aligned <- file.path(data.dir, 'test.fasta')
 gisaidall <- read.FASTA(gisaid.aligned)
+
+
 fastafile <- as.phyDat(gisaidall)
+
+
+
+ref_loop<-which(names(fastafile)=="hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31")
+
 #Pairwise number of differences
-hamminglist<-c(hamminglist,as.matrix(dist.hamming(fastafile,ratio=FALSE))[1,-1])
+hamminglist<-c(hamminglist,as.matrix(dist.hamming(fastafile,ratio=FALSE))[ref_loop,-ref_loop])
 #plot(table(hamming)/2,xlab="Hamming Distance",ylab="Frequency")
 }
-subset.fasta(base.dir,c(ref,seq(j+1,length(meta_fig))), fasta.out)
-gisaid.aligned <- paste(data.dir, 'test.fasta', sep='')
+subset.fasta(base.dir,c(ref,seq(j,nrow(meta_fig))), fasta.out)
+gisaid.aligned <- file.path(data.dir, 'test.fasta')
 gisaidall <- read.FASTA(gisaid.aligned)
 fastafile <- as.phyDat(gisaidall)
+ref_loop<-which(names(fastafile)=="hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31")
 #Pairwise number of differences
-hamminglist<-c(hamminglist,as.matrix(dist.hamming(fastafile,ratio=FALSE))[1,-1])
+hamminglist<-c(hamminglist,as.matrix(dist.hamming(fastafile,ratio=FALSE))[ref_loop,-ref_loop])
+
+hamminglist <- hamminglist[c(2:ref, 1, (ref+1):length(hamminglist))]
 
 ```
 
@@ -70,10 +90,25 @@ A rough estimate of the mutation rate can be obtained by regressing genetic dive
 ```{r,echo=FALSE}
 par(mfrow=c(1,1))
 x<-dates_samp-dates_samp[ref]
-reg<-lm(hamminglist~-1+x)
+
+data <- meta_fig %>% as_tibble %>%
+  mutate(date = as.Date(date)) %>%
+  cbind(hamming_dist = hamminglist) %>%
+  left_join(case_counts, by = c("country", "date")) %>%
+  mutate(centred_date = date - date[ref]) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+data
+
+
+
+reg<-lm(hamming_dist ~ -1 + centred_date + log(1 + case_counts), data = data)
 summary(reg)
 
-plot(dates_samp-dates_samp[ref],hamming[ref,],ylab="Distance to reference",xlab="Time difference (Days)",main=paste("A total of ",round(reg$coefficients[[1]]*28,2)," of mutations per month",sep=""))
+reg$coefficients[[1]]*28
+
+
+plot(dates_samp-dates_samp[ref],hamminglist,ylab="Distance to reference",xlab="Time difference (Days)",main=paste("A total of ",round(reg$coefficients[[1]]*28,2)," of mutations per month",sep=""))
 abline(reg)
 
 library("ggplot2")
