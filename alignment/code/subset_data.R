@@ -2,14 +2,15 @@
 
 subset.fasta <- function(git.dir, ind.vec, fasta.out) {
     ## This function subsets all_seq.fasta (or other fasta files) 
-    #  based on the ind.vec given. 
+    #  based on the ind.vec given. For now, ind.vec has to be
+    #  sorted and has no duplicate entries.
     ## Input:
     #   git.dir: Home dir for Covid19_Analysis.
     #   ind.vec: A vector of indices of sequences to extract.
     #   fasta.out: Name of output fasta file for subsetted data
     ## Output:
     #   Subsetted fasta in the name of fasta.out in data.dir.
-    #   The order of the sequences are sorted(ind.vec) order.
+    #   The order of the sequences are sort(unique(ind.vec)) order.
     
     stopifnot(is.vector(ind.vec))
     data.dir <- paste(git.dir, 'alignment/data/', sep='')
@@ -19,7 +20,7 @@ subset.fasta <- function(git.dir, ind.vec, fasta.out) {
     cat(paste('data.dir containing all_seq.fasta is', data.dir, '\n'))
     cat(paste('script.dir containing subset_fasta.sh is', script.dir, '\n\n'))
     
-    ind.vec <- sort(ind.vec)
+    ind.vec <- sort(unique(ind.vec))
     ind.fasta <- c(rbind(2*ind.vec-1, 2*ind.vec))
     extract.ind.f <- paste(data.dir, 'tmp_ind_fasta.txt', sep='')
     write.table(ind.fasta, file=extract.ind.f,
