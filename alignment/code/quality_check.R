@@ -13,8 +13,7 @@ rm(list=ls())
 ## ==================================================
 ## Setting paths etc
 ## ==================================================
-# git.dir <- '~/Documents/Covid_Analysis/'
-git.dir <- '~/Desktop/Coronavirus/github_public/Covid19_Analyses/'
+git.dir <- '~/Documents/Covid_Analysis/'
 base.dir <- paste(git.dir, 'alignment/data/', sep='')
 script.dir <- paste(git.dir, 'alignment/code/', sep='')
 
@@ -37,7 +36,7 @@ system(getmeta.str)
 ## =========================================================
 fasta.meta <- read.delim(paste(base.dir, 'meta_fasta.tsv', sep=''),
                          as.is=TRUE, header=FALSE)
-colnames(fasta.meta) <- c('meta.id', 'gisaid_epi_isl', 'date', 'division')
+colnames(fasta.meta) <- c('meta.id', 'gisaid_epi_isl', 'date')
 
 # check all fasta.meta ID's are in
 stopifnot(dim(fasta.meta)[1] == length(grep('EPI_ISL_', fasta.meta$gisaid_epi_isl)))
