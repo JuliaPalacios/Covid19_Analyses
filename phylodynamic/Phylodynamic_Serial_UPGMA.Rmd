@@ -1,0 +1,74 @@
+---
+title: "Phylodynamics using Serial UPGMA"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load the FASTA file of your county of interest. 
+```{r, echo=FALSE}
+library(phylodyn)
+library(ape)
+library(lubridate)
+source("function_serial.R")
+#Read fasta file
+country<-"France"
+fastaname<-paste(country,".fasta",sep="")
+fastaformat<-read.FASTA(fastaname)
+```
+
+Extract sequences, sequence names, and sampling dates from the file
+```{r, echo=FALSE}
+#Save name of the sequence and sampling times from the file
+seq_names<-names(fastaformat)
+samp_times<-c()
+for (r in seq_names){
+  samp_times<-c(samp_times,paste(strsplit(r,"|")[[1]][(length(strsplit(r,"|")[[1]])-9):length(strsplit(r,"|")[[1]])],collapse =""))
+}
+samp_times<-decimal_date(date(samp_times))
+lastdate<-max(samp_times)
+samp_times<-max(samp_times)-samp_times
+name_samp<-cbind(samp_times,seq_names)
+```
+
+Ensure that there are at least two sequences at t=0, otherwise remove the sequence
+```{r, echo=FALSE}
+while(table(samp_times)[1]==1){
+  idx<-which(samp_times==0)
+  #Remove the sequence observed only once
+  fastaformat <- fastaformat[-idx]
+  seq_names<-seq_names[-idx]
+  samp_times<-samp_times[-idx]
+  name_samp<-name_samp[-idx,]
+  #Make the the last sequence the new 0
+  samp_times<-samp_times-min(samp_times)
+}
+```
+
+Compute mutation rate. You need to specify which it is the reference sequence.
+```{r,echo=FALSE}
+id.ref<-which(sapply(names(fastaformat),grepl,'EPI_ISL_402125')==T)
+mu<-mu_linear_reg_id(fastaformat,id.ref)
+
+```
+
+Compute serial UPGMA tree and plot it
+```{r,echo=FALSE}
+fastafile<-as.phyDat(fastaformat)
+tree<-serial_upgma(fastafile,mu, samp_times, name_samp, model="F81")
+plot(tree,show.tip.label = TRUE,cex=.3)
+```
+
+Phylodynamic analysis and its plots.
+```{r,echo=FALSE}
+bnp<-BNPR(tree)
+bnp_ps<-BNPR_PS(tree)
+
+axlabs<-axis_label(bnp_ps,lastdate,byy=4/365)
+
+plot_BNPR2(bnp,axlabs = axlabs)
+plot_BNPR2(bnp_ps,axlabs = axlabs)
+```
+

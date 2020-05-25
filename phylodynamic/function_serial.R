@@ -81,6 +81,19 @@ mu_linear_reg<-function(alig){
 }
 
 
+mu_linear_reg_id<-function(alig,id.ref){
+  n = length(alig)
+  ids = names(alig)
+  dates_samp<-ymd(substr(ids, start = nchar(ids) - 9, stop = nchar(ids)))
+  ##A rough estimate of mutation rate
+  x<-dates_samp-dates_samp[id.ref]
+  hamming<-as.matrix(dist.hamming(as.phyDat(alig),ratio=FALSE))
+  reg<-lm(hamming[nrow(hamming),-nrow(hamming)]~-1+x[-nrow(hamming)])
+  mu<-reg$coefficients[[1]]*365/length(alig[[1]])
+  return(mu)
+}
+
+
 axis_label<-function(bnp,lastdate,byy=5/365){
   bnp1<-bnp
   bnp1$grid <- lastdate - bnp1$grid
