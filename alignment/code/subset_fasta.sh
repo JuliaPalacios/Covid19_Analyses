@@ -7,8 +7,8 @@ OUT_FASTA=$4
 
 cd $BASE_DIR
 
-awk -v nums=$IND_F "
+awk -v nums=$IND_F '
 	BEGIN { getline linenum < nums }
 	NR == linenum { print; if ((getline linenum < nums) < 1) exit }
-	" $IN_FASTA > $OUT_FASTA
+	' $IN_FASTA > $OUT_FASTA
 

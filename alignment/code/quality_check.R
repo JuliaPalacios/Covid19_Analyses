@@ -20,7 +20,7 @@ base.dir <- file.path(git_root$find_file("alignment", "data", date))
 script.dir <- file.path(git_root$find_file("alignment", "code"))
 
 setwd(base.dir)
-fasta.f <- file.path(base.dir, "msa_0522.fasta")
+fasta.f <- file.path(base.dir, "msa_0524.fasta")
 meta.f <- file.path(base.dir, "metadata.tsv")
 getmeta.sh <- file.path(script.dir, "get_meta_all.sh") 
 getfasta.sh <- file.path(script.dir, "subset_fasta.sh")
