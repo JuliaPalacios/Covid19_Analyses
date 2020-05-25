@@ -31,7 +31,7 @@ subset_fasta <- function(subset_fp, inds) {
   # Adapted from subset_data.R
   fasta_lines <- c(rbind(2*inds-1, 2*inds))
 
-  fasta_lines_tmp_fp <- paste(subset_fp, "_lines.bak", sep="")
+  fasta_lines_tmp_fp <- paste0(subset_fp, "_lines.bak")
   write.table(fasta_lines, file=fasta_lines_tmp_fp, col.names=FALSE, 
       row.names=FALSE, quote=FALSE)
 
@@ -58,9 +58,9 @@ compute_tree <- function(country, max_seqs = 2000, division = NULL) {
 
   subs <- c(subs, idx_root)
 
-  fasta_subset_fp <- file.path(data_dir, paste("fastasub_", 
+  fasta_subset_fp <- file.path(data_dir, paste0("fastasub_", 
       gsub(" ", "-", country), "_", format(Sys.time(), "%Y%m%d%H%M%S", 
-      tz = "UTC"), ".fasta", sep = ""))
+      tz = "UTC"), ".fasta"))
   print(paste("Creating subset fasta file", fasta_subset_fp))
   subset_fasta(fasta_subset_fp, subs)
   stopifnot(file.exists(fasta_subset_fp))
@@ -105,8 +105,8 @@ compute_tree <- function(country, max_seqs = 2000, division = NULL) {
 }
 
 summarize_metadata <- function() {
-  print(paste("A total of ", nrow(meta_fig), " samples from ",
-        length(unique(meta_fig$country)), "countries --", date(), collapse=""))
+  print(paste("A total of", nrow(meta_fig), "samples from",
+        length(unique(meta_fig$country)), "countries --", date()))
   par(mfrow=c(1,2))
   plot(sort(table(meta_fig$country)),cex.axis = 0.35,las=2,
        xlab="",ylab="",main="Samples per country")
@@ -152,7 +152,7 @@ for (c in countries) {
   } else {
     print(paste0("----- Computing tree for ", c, " (", nseq, " seqs) -----"))
     treedata <- compute_tree(c)
-    filename <- paste(c, "_", treedata$lastdate, ".tre", sep = "")
+    filename <- paste0(c, "_", treedata$lastdate, ".tre")
     write.tree(treedata$tree, file = file.path(trees_dir, filename))
   }
 }
