@@ -20,3 +20,16 @@ alignment/data/msa_0524.fasta
 alignment/data/msa_0524.zip
 alignment/data/test.fasta
 alignment/data/tmp_beast.fasta
+alignment/data/20200524/README.txt
+alignment/data/20200524/msa_0524.zip
+alignment/data/20200524/msa_0524.fasta
+alignment/data/20200524/metadata_2020-05-24_17-38.tsv.gz
+alignment/data/20200524/metadata.tsv
+alignment/data/20200524/exclude_ns.txt
+alignment/data/20200524/exclude.txt
+alignment/data/20200524/all_seq.fasta.gz
+alignment/data/20200524/all_seq.fasta
+alignment/data/20200524/all_meta.tsv.gz
+alignment/data/20200524/all_meta.tsv
+alignment/data/20200522/msa_0522.zip
+alignment/data/20200522/metadata_2020-05-22_20-10.tsv.gz
