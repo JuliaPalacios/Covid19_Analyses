@@ -9,6 +9,7 @@ library(phylodyn)
 library(ape)
 library(phangorn)
 library(lubridate)
+library(tidyverse)
 
 my <- function(str){
   if(.Platform$OS.type == "windows") gsub("/", "//", str)
@@ -17,9 +18,10 @@ my <- function(str){
 
 git.root <- rprojroot::has_file(".git/index")
 
+date <- '20200524'
 
 base.dir <- git.root$find_file()
-data.dir <- file.path(base.dir, "alignment", "data")
+data.dir <- file.path(base.dir, "alignment", "data", date)
 
 
 meta_fig <- read.delim2(file.path(data.dir, 'all_meta.tsv'), quote="",
@@ -90,6 +92,8 @@ A rough estimate of the mutation rate can be obtained by regressing genetic dive
 ```{r,echo=FALSE}
 par(mfrow=c(1,1))
 x<-dates_samp-dates_samp[ref]
+
+source("jhu_csse_counts.R")
 
 data <- meta_fig %>% as_tibble %>%
   mutate(date = as.Date(date)) %>%

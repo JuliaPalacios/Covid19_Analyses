@@ -1,6 +1,6 @@
 
 
-subset.fasta <- function(git.dir, ind.vec, fasta.out) {
+subset.fasta <- function(git.dir, ind.vec, fasta.out, data_date = date) {
     ## This function subsets all_seq.fasta (or other fasta files) 
     #  based on the ind.vec given. 
     ## Input:
@@ -12,7 +12,7 @@ subset.fasta <- function(git.dir, ind.vec, fasta.out) {
     #   The order of the sequences are sorted(ind.vec) order.
     
     stopifnot(is.vector(ind.vec))
-    data.dir <- file.path(git.dir, "alignment", "data")
+    data.dir <- file.path(git.dir, "alignment", "data", data_date)
     script.dir <- file.path(git.dir, "alignment", "code")
     fasta.in <- file.path(data.dir, 'all_seq.fasta')
     
