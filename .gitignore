@@ -1,8 +1,4 @@
 
-*.fasta
-*.gz
-*.tsv
-*.zip
 alignment/data/.Rhistory
 alignment/data/exclude.txt
 alignment/data/exclude_ns.txt
@@ -10,3 +6,17 @@ alignment/data/headers_all.txt
 alignment/data/README.txt
 alignment/data/tmp_ind.txt
 Rcode/.Rhistory
+alignment/data/all_meta.tsv
+alignment/data/all_meta.tsv.gz
+alignment/data/all_seq.fasta
+alignment/data/all_seq.fasta.gz
+alignment/data/another_seq.fasta
+alignment/data/meta_fasta.tsv
+alignment/data/metadata.tsv
+alignment/data/metadata_2020-05-22_20-10.tsv.gz
+alignment/data/metadata_2020-05-24_17-38.tsv.gz
+alignment/data/msa_0522.zip
+alignment/data/msa_0524.fasta
+alignment/data/msa_0524.zip
+alignment/data/test.fasta
+alignment/data/tmp_beast.fasta
