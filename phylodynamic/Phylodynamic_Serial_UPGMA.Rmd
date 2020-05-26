@@ -77,7 +77,7 @@ if (length(id.long)>0){
   fastafile<-as.phyDat(fastaformat)
   tree<-serial_upgma(fastafile,mu, samp_times, name_samp, model="F81")
   plot(tree,show.tip.label = TRUE,cex=.3)
-  print(paste("TMRCA is approximately at", date_decimal(lastdate-tree$tmrca)))
+  print(paste("TMRCA is approximately at (note:this does not account correction of negative edges!!)", date_decimal(lastdate-tree$tmrca)))
 }
 
 ```
