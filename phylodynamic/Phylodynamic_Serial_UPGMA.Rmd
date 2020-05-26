@@ -61,6 +61,28 @@ tree<-serial_upgma(fastafile,mu, samp_times, name_samp, model="F81")
 plot(tree,show.tip.label = TRUE,cex=.3)
 ```
 
+OPTIONAL: Check if there are any branch lengths (terminal ones) from the tips longer than X (cutoff) year. If any, remove them, recompute mu and the tree
+```{r,echo=FALSE}
+cutoff<-0.35
+id.long<-which(tree$edge.length>=cutoff & tree$edge[,2]<=n)
+if (length(id.long)>0){
+  id.labels<-tree$tip.label[tree$edge[id.long,2]]
+  id.remove<-c()
+  for (i in id.labels) {id.remove <-  c(id.remove,which(names(fastaformat)==i))}
+  fastaformat<-fastaformat[-id.remove]
+  id.ref<-which(sapply(names(fastaformat),grepl,'EPI_ISL_402125')==T)
+  mu<-mu_linear_reg_id(fastaformat,id.ref)
+  samp_times<-samp_times[-id.remove]
+  name_samp<-name_samp[-id.remove,]
+  fastafile<-as.phyDat(fastaformat)
+  tree<-serial_upgma(fastafile,mu, samp_times, name_samp, model="F81")
+  plot(tree,show.tip.label = TRUE,cex=.3)
+  print(paste("TMRCA is approximately at", date_decimal(lastdate-tree$tmrca)))
+}
+
+```
+
+
 Phylodynamic analysis and its plots.
 ```{r,echo=FALSE}
 bnp<-BNPR(tree)

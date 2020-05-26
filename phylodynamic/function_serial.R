@@ -17,9 +17,10 @@ correct_distance_het2<-function(n_sample,samplingdates,dm1){
 upgma_tree_correction<-function(CorrDistance,n_sample,samp_times,name_samp){
   #Create UPGMA tree
   treeUPGMA1<-upgma(CorrDistance)
+  tmrca<-sum(coalescent.intervals(treeUPGMA1)$interval.length)
   if(length(samp_times)>1){#heterochronous samples
     treeUPGMA1_het<-trimBranches2(treeUPGMA1,n_sample=dim(name_samp)[1],"plus",name_samp)
-    treeUPGMA1_het$edge.length[treeUPGMA1_het$edge.length<.00001]<-max(min(treeUPGMA1_het$edge.length/10),0.001)
+    treeUPGMA1_het$edge.length[treeUPGMA1_het$edge.length<.000000000001]<-max(min(treeUPGMA1_het$edge.length/10),.000000000001)
     #correct for possibly negative edges
     while(sum(treeUPGMA1_het$edge.length<=0*1)>=1){
       MinEdge=min(abs(treeUPGMA1_het$edge.length))/10 #MinEdge length in the UPGMA tree: we assign it to the negative edge
@@ -34,9 +35,11 @@ upgma_tree_correction<-function(CorrDistance,n_sample,samp_times,name_samp){
       treeUPGMA1_het$edge.length[idPar]=treeUPGMA1_het$edge.length[idPar]-fill #Compensate 
     }
   } else {treeUPGMA1_het=treeUPGMA1}
-  treeUPGMA1_het$edge.length[treeUPGMA1_het$edge.length<.00001]<-max(min(treeUPGMA1_het$edge.length)/10,0.001)
+  treeUPGMA1_het$edge.length[treeUPGMA1_het$edge.length<.000000000001]<-max(min(treeUPGMA1_het$edge.length)/10,.000000000001)
+  treeUPGMA1_het$tmrca<-tmrca
   return(tree=treeUPGMA1_het)
 }
+
 
 
 # function to trim branches from UPGMA tree
