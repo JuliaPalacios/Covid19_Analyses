@@ -5,15 +5,15 @@ In this repository we report our analyses of publicly available genomic sequence
 
 This is an ongoing project. Please refer to [todo](https://github.com/JuliaPalacios/Covid19_Analyses/tree/master/todo) if you would like to contribute on a certain topic.
 
-1. Data pre-processing. We need to download the msa and metadata files directly from Gisaid. Sequences are already aligned. We need to place those files in the data folder. We then need to run quality_check.R. This code will place two new files in your data folder.
+1. Data pre-processing. We need to download the msa and metadata files directly from GISAID. Sequences are already aligned. We need to place those files in the data folder. We then need to run *quality_check.R*. This code will place two new files in your data folder.
 
-2. sites_ref.R removes sites that are not in the reference sequence and subset_filter.R will filter sites that have more than 20% of missing data.
+2. *sites_ref.R* removes sites that are not in the reference sequence and *subset_filter.R* will filter sites that have more than 20% of missing data.
 
-3. Accessing the sequences is slow. You can subset data with subset_fasta.R
+3. Accessing the sequences is slow. You can subset data with *subset.fasta* function in *subset_data.R*.
 
-4. Indexing a large file and accessing it via the indexed file can be faster and more efficient. For an example, see subset_filter.R
+4. Indexing a large file and accessing it via the indexed file can be faster and more efficient. For an example, see *subset_filter.R*.
 
-5. Quick estimates are generated with fast_covid.R
+5. Quick estimates are generated with *fast_covid.R*.
 
 6. Estimates of Mutation rate
 
