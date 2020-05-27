@@ -7,6 +7,10 @@ This is an ongoing project. Please refer to [todo](https://github.com/JuliaPalac
 
 1. Data pre-processing. We need to download the msa and metadata files directly from Gisaid. Sequences are already aligned. We need to place those files in the data folder. We then need to run quality_check.R. This code will place two new files in your data folder.
 
+2. sites_ref.R removes sites that are not in the reference sequence and subset_filter.R will filter sites that have more than 20% of missing data.
+
+3. Accessing the sequences is slow. You can subset data with subset_fasta.R
+
 2. Quick estimates are generated with fast_covid.R
 
 2. Estimates of Mutation rate
