@@ -8,7 +8,7 @@ rm(list=ls())
 library(Rsamtools)
 library(Biostrings)
 
-data.dir <- '~/Desktop/Coronavirus/data_GISAID/2020_05_24/'
+data.dir <- '~/Documents/Covid_Analysis/'
 setwd(data.dir)
 fasta.f <- 'all_seq.fasta'
 
