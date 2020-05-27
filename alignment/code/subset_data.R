@@ -1,7 +1,8 @@
 library(Rsamtools)
 library(Biostrings)
 
-subset.fasta <- function(git.dir, ind.vec, fasta.out, fasta.in='all_seq.fasta', include.ref=FALSE) {
+subset.fasta <- function(git.dir, ind.vec, fasta.out, 
+                         fasta.in='all_seq.fasta', include.ref=FALSE) {
     ## This function subsets all_seq.fasta (or other fasta files) 
     #  based on the ind.vec given. For now, ind.vec has to be
     #  sorted and has no duplicate entries.
@@ -9,7 +10,8 @@ subset.fasta <- function(git.dir, ind.vec, fasta.out, fasta.in='all_seq.fasta', 
     ## Input:
     #   git.dir: Home dir for Covid19_Analysis.
     #   ind.vec: A vector of indices of sequences to extract.
-    #   fasta.out: Name of output fasta file for subsetted data
+    #   fasta.out: Name of output fasta file for subsetted data.
+    #   fasta.in: Name of input fasta file from which we subset data.
     #   include.ref: If TRUE, the output file will contain reference sequence
     #                as a first entry in the fasta.out.
     ## Output:
