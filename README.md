@@ -11,27 +11,29 @@ This is an ongoing project. Please refer to [todo](https://github.com/JuliaPalac
 
 3. Accessing the sequences is slow. You can subset data with subset_fasta.R
 
-2. Quick estimates are generated with fast_covid.R
+4. Indexing a large file and accessing it via the indexed file can be faster and more efficient. For an example, see subset_filter.R
 
-2. Estimates of Mutation rate
+5. Quick estimates are generated with fast_covid.R
 
-
-3. Population Structure
-
+6. Estimates of Mutation rate
 
 
-
-
-4. Diversity (Effective population size) [Preliminary](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/phylodynamic/Phylodynamic_Analyses1.pdf)
+7. Population Structure
 
 
 
 
-5. Comparative Analyses
+
+8. Diversity (Effective population size) [Preliminary](https://github.com/JuliaPalacios/Covid19_Analyses/blob/master/phylodynamic/Phylodynamic_Analyses1.pdf)
 
 
 
-6. Comparison to Surveillance Data
+
+9. Comparative Analyses
+
+
+
+10. Comparison to Surveillance Data
 
 
 ## Contributors:
