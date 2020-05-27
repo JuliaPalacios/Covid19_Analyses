@@ -9,7 +9,7 @@ This is an ongoing project. Please refer to [todo](https://github.com/JuliaPalac
 
 2. sites_ref.R removes sites that are not in the reference sequence and subset_filter.R will filter sites that have more than 20% of missing data.
 
-3. Accessing the sequences is slow. You can subset_fasta.R
+3. Accessing the sequences is slow. You can subset data with subset_fasta.R
 
 2. Quick estimates are generated with fast_covid.R
 
