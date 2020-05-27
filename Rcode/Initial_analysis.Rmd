@@ -13,6 +13,7 @@ library(lubridate)
 base.dir <- '~/Documents/Covid_Analysis/'
 data.dir <- paste(base.dir, 'alignment/data/', sep='')
 
+#ref.meta <- read.delim(paste(data.dir, 'genbank_MN908947_meta.txt',sep=''), header=T, as.is=T, sep='\t')
 
 meta_fig <- read.delim2(paste(data.dir, '/all_meta.tsv', sep=''), quote="",
                            header=TRUE, sep='\t', as.is=T)
@@ -28,6 +29,9 @@ plot(sort(table(meta_fig$country)),cex.axis = 0.35,las=2,xlab="",ylab="Number of
 ```{r,echo=FALSE}
 dates_samp<-ymd(meta_fig$date)
 plot(table(dates_samp),cex.axis = 0.4,las=2,xlab="",ylab="Number of samples",main="Sequences by date")
+setwd(data.dir)
+system('curl https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv -o owid-covid-data.csv')
+
 ```
 
 
