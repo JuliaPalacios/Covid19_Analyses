@@ -328,7 +328,7 @@ rate_list <- sapply(reg_list, function(u){u$coefficients[["centred_date"]] * 28}
 rate_list
 ```
 
-I am not sure about the reliability of these estimates.  In particular, we expect the coefficient of `case_counts` to be positive, since we expect a higher number of mutations with a higher number of cases.
+I am not sure about the reliability of these estimates.  In particular, we expect the coefficient of `case_counts` to be positive, since we expect a higher number of mutations with a higher number of cases; this is not the case for the untransformed counts or with the cube root transformation.  This seems to be due to the heteroscedasticity in the data.
 
 
 
