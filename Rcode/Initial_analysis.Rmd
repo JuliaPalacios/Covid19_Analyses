@@ -98,7 +98,7 @@ source("jhu_csse_counts.R")
 data <- meta_fig %>% as_tibble %>%
   mutate(date = as.Date(date)) %>%
   cbind(hamming_dist = hamminglist) %>%
-  left_join(case_counts, by = c("country", "date")) %>%
+  left_join(case_counts_diff, by = c("date")) %>%
   mutate(centred_date = date - date[ref]) %>%
   mutate(case_counts = replace_na(case_counts, 0)) %>%
   {.}
@@ -106,7 +106,7 @@ data
 
 
 
-reg<-lm(hamming_dist ~ -1 + centred_date + log(1 + case_counts), data = data)
+reg <- lm(hamming_dist ~ -1 + centred_date + log(1 + case_counts), data = data)
 summary(reg)
 
 reg$coefficients[[1]]*28

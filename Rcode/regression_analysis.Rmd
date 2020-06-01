@@ -1,0 +1,334 @@
+---
+title: "Untitled"
+author: '---'
+date: "29/05/2020"
+output: html_document
+---
+
+We load in the data to do some initial analysis:
+
+```{r,echo=FALSE}
+rm(list=ls())
+library(phylodyn)
+library(ape)
+library(phangorn)
+library(lubridate)
+library(tidyverse)
+
+my <- function(str){
+  if(.Platform$OS.type == "windows") gsub("/", "//", str)
+  else str
+}
+
+git.root <- rprojroot::has_file(".git/index")
+
+date <- '20200524'
+
+base.dir <- git.root$find_file()
+data.dir <- file.path(base.dir, "alignment", "data", date)
+
+
+meta_fig <- read.delim2(file.path(data.dir, 'all_meta.tsv'), quote="",
+                           header=TRUE, sep='\t', as.is=T)
+
+countr<-length(unique(meta_fig$country))
+total.sam<-nrow(meta_fig)
+main1<-paste("A total of ",total.sam," from ",countr, "countries --",date(),collapse="")
+plot(sort(table(meta_fig$country)),cex.axis = 0.35,las=2,xlab="",ylab="Number of samples",main="")
+
+```
+
+
+
+```{r,echo=FALSE}
+dates_samp<-ymd(meta_fig$date)
+plot(table(dates_samp),cex.axis = 0.4,las=2,xlab="",ylab="Number of samples",main="Sequences by date")
+```
+
+We load in the hamming distances of the sequences from the reference sample:
+
+```{r,echo=FALSE}
+root<-"Wuhan-Hu-1/2019"
+ref<-which(meta_fig$strain==root)
+##Sequence data (aligned already)
+#this is where I used to compute the pairwise hamming distance that is difficult 
+#will compute pairwise hamming in 4 batches
+# hamminglist <- 0
+# fasta.out <- 'test.fasta'
+# source(file.path(base.dir, "alignment", "code", "subset_data.R"))
+# 
+# 
+# 
+# for (j in seq(1,nrow(meta_fig),by=1000)[-1]){
+# print(j)
+# subset.fasta(base.dir,c(ref,seq(j-1000,j-1)), fasta.out)
+# gisaid.aligned <- file.path(data.dir, 'test.fasta')
+# gisaidall <- read.FASTA(gisaid.aligned)
+# 
+# 
+# fastafile <- as.phyDat(gisaidall)
+# 
+# 
+# 
+# ref_loop<-which(names(fastafile)=="hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31")
+# 
+# #Pairwise number of differences
+# hamminglist<-c(hamminglist,as.matrix(dist.hamming(fastafile,ratio=FALSE))[ref_loop,-ref_loop])
+# #plot(table(hamming)/2,xlab="Hamming Distance",ylab="Frequency")
+# }
+# subset.fasta(base.dir,c(ref,seq(j,nrow(meta_fig))), fasta.out)
+# gisaid.aligned <- file.path(data.dir, 'test.fasta')
+# gisaidall <- read.FASTA(gisaid.aligned)
+# fastafile <- as.phyDat(gisaidall)
+# ref_loop<-which(names(fastafile)=="hCoV-19/Wuhan-Hu-1/2019|EPI_ISL_402125|2019-12-31")
+# #Pairwise number of differences
+# hamminglist<-c(hamminglist,as.matrix(dist.hamming(fastafile,ratio=FALSE))[ref_loop,-ref_loop])
+# 
+# hamminglist <- hamminglist[c(2:ref, 1, (ref+1):length(hamminglist))]
+
+load("rs_hammingdist.RData")
+```
+
+
+```{r,echo=FALSE}
+plot(table(hamminglist),ylab="Frequency",xlab="Hamming distance to reference")
+```
+
+A rough estimate of the mutation rate can be obtained by regressing genetic divergence on time divergence. This estimate ignores correlation among samples, population structure and pairwise information. A more reliable estimate can be found in the mutation section.
+
+We are interested in accounting for population structure and perform some initial data exploration:
+
+```{r,echo=FALSE}
+par(mfrow=c(1,1))
+x<-dates_samp-dates_samp[ref]
+
+source("jhu_csse_counts.R")
+
+meta_input <- 
+  meta_fig %>% as_tibble %>%
+  mutate(date = as.Date(date)) %>%
+  cbind(hamming_dist = hamminglist) %>%                     # hamming distance
+  mutate(centred_date = date - date[ref]) %>%               # temporal distance from reference sample
+  filter(hamming_dist <= quantile(hamming_dist, .999)) %>%  # remove outliers
+  {.}
+
+data_confirmed_global_all_together <- 
+  meta_input %>%
+  left_join(case_counts_all_together, by = c("date")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+data_confirmed_global_each_country <- 
+  meta_input %>%
+  left_join(case_counts_each_country, by = c("date", "country")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+data_increase_global_all_together <- 
+  meta_input %>%
+  left_join(case_counts_diff_all_together, by = c("date")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+data_increase_global_each_country <- 
+  meta_input %>%
+  left_join(case_counts_diff_each_country, by = c("date", "country")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+data_active_global_all_together <- 
+  meta_input %>%
+  left_join(case_counts_active_all_together, by = c("date")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+data_active_global_each_country <- 
+  meta_input %>%
+  left_join(case_counts_active_each_country, by = c("date", "country")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+```
+
+
+First, some scatterplots:
+
+```{r}
+data_active_global_all_together %>% 
+  select(centred_date, hamming_dist, case_counts) %>%
+  # mutate(case_counts := log(1 + case_counts)) %>%
+  pairs()
+```
+
+
+We have to transform the data since case counts and hamming distances are on very different scales.  We do some correlation analysis to pick a suitable transformation:
+```{r}
+x <- data_active_global_all_together$case_counts
+t <- data_active_global_all_together$centred_date
+y <- data_active_global_all_together$hamming_dist
+
+par(mfrow = c(1,3))
+plot(log(1+x), t)
+plot(x^(1/3), t)
+plot(asinh(x), t)
+
+
+data_active_global_all_together %>% 
+  select(centred_date, hamming_dist, case_counts) %>%
+  mutate(case_counts_log := log(1+case_counts),
+         case_counts_asinh := asinh(case_counts),
+         case_counts_cbrt := case_counts^(1/3)) %>%
+  mutate(centred_date = as.numeric(centred_date)) %>%
+  cor()
+
+data_active_global_all_together %>% 
+  select(centred_date, hamming_dist, case_counts) %>%
+  mutate(case_counts_log := log(1+case_counts),
+         case_counts_asinh := asinh(case_counts),
+         case_counts_cbrt := case_counts^(1/3)) %>%
+  mutate(centred_date = as.numeric(centred_date)) %>%
+  pairs()
+```
+
+We now look at the base model:
+
+```{r}
+reg0 <- lm(hamming_dist ~ -1 + centred_date, data = data_confirmed_global_all_together)
+
+summary(reg0)
+
+coefficients(reg0)[["centred_date"]] * 28
+```
+
+
+We fit a regression of hamming distances on date and case counts, using our various transformations:
+
+```{r}
+reg1 <- lm(hamming_dist ~ -1 + centred_date + case_counts, data = data_active_global_all_together)
+reg2 <- lm(hamming_dist ~ -1 + centred_date + log(1 + case_counts), data = data_active_global_all_together)
+reg3 <- lm(hamming_dist ~ -1 + centred_date + asinh(case_counts), data = data_active_global_all_together)
+reg4 <- lm(hamming_dist ~ -1 + centred_date + I(case_counts^(1/3)), data = data_active_global_all_together)
+
+
+reg_list <- list(reg0,
+                 reg1, reg2, reg3, reg4
+                 )
+
+summary(reg1)
+summary(reg2)
+summary(reg3)
+summary(reg4)
+
+rate_list <- sapply(reg_list, function(u){u$coefficients[["centred_date"]] * 28})
+
+rate_list
+```
+
+
+We now look at analysis restricted to the US:
+
+```{r}
+meta_input_us <- 
+  meta_input %>%
+  filter(country == "USA") %>%
+  rename(state := region) %>%
+  {.}
+
+data_confirmed_us_all_together <- 
+  meta_input_us %>%
+  left_join(case_counts_us_all_together, by = c("date")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+data_confirmed_us_each_state <- 
+  meta_input_us %>%
+  left_join(case_counts_us_each_state, by = c("date", "state")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+data_confirmed_us_all_together %>% 
+  select(centred_date, hamming_dist, case_counts) %>%
+  mutate(case_counts_log := log(1+case_counts),
+         case_counts_asinh := asinh(case_counts),
+         case_counts_cbrt := case_counts^(1/3)) %>%
+  mutate(centred_date = as.numeric(centred_date)) %>%
+  pairs()
+```
+
+
+We do not have reliable data for active cases by state in the US.  We look at cumulative confirmed cases as a proxy instead.  This does not change the results much.  
+
+```{r}
+rega0 <- lm(hamming_dist ~ -1 + centred_date, data = data_confirmed_us_all_together)
+
+rega1 <- lm(hamming_dist ~ -1 + centred_date + case_counts, data = data_confirmed_us_all_together)
+rega2 <- lm(hamming_dist ~ -1 + centred_date + log(1 + case_counts), data = data_confirmed_us_all_together)
+rega3 <- lm(hamming_dist ~ -1 + centred_date + asinh(case_counts), data = data_confirmed_us_all_together)
+rega4 <- lm(hamming_dist ~ -1 + centred_date + I(case_counts^(1/3)), data = data_confirmed_us_all_together)
+
+
+
+
+
+reg_list <- list(rega0,
+                 rega1, rega2, rega3, rega4
+                 )
+
+rate_list <- sapply(reg_list, function(u){u$coefficients[["centred_date"]] * 28})
+
+rate_list
+```
+
+
+
+We now look at analysis restricted to the state of Washington:
+
+```{r}
+meta_input_washington <- 
+  meta_input %>%
+  filter(country == "USA") %>%
+  rename(state := division) %>%
+  filter(state == "Washington") %>%
+  {.}
+
+data_confirmed_washington <- 
+  meta_input_washington %>%
+  left_join(case_counts_us_each_state, by = c("date", "state")) %>%
+  mutate(case_counts = replace_na(case_counts, 0)) %>%
+  {.}
+
+data_confirmed_washington %>% 
+  select(centred_date, hamming_dist, case_counts) %>%
+  mutate(case_counts_log := log(1+case_counts),
+         case_counts_asinh := asinh(case_counts),
+         case_counts_cbrt := case_counts^(1/3)) %>%
+  mutate(centred_date = as.numeric(centred_date)) %>%
+  pairs()
+
+```
+
+
+We now look at regression analysis:  
+
+```{r}
+
+regb0 <- lm(hamming_dist ~ -1 + centred_date, data = data_confirmed_washington)
+
+regb1 <- lm(hamming_dist ~ -1 + centred_date + case_counts, data = data_confirmed_washington)
+regb2 <- lm(hamming_dist ~ -1 + centred_date + log(1 + case_counts), data = data_confirmed_washington)
+regb3 <- lm(hamming_dist ~ -1 + centred_date + asinh(case_counts), data = data_confirmed_washington)
+regb4 <- lm(hamming_dist ~ -1 + centred_date + I(case_counts^(1/3)), data = data_confirmed_washington)
+
+reg_list <- list(regb0,
+                 regb1, regb2, regb3, regb4
+                 )
+
+rate_list <- sapply(reg_list, function(u){u$coefficients[["centred_date"]] * 28})
+
+rate_list
+```
+
+I am not sure about the reliability of these estimates.  In particular, we expect the coefficient of `case_counts` to be positive, since we expect a higher number of mutations with a higher number of cases.
+
+
+
