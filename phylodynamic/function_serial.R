@@ -5,8 +5,8 @@
 
 
 #correct distance matrix if we are in the heterochrnous case. 
-correct_distance_het2<-function(n_sample,samplingdates,dm1){
-  n1<-dim(name_samp)[1]
+#NEW DOUBLE CHECK
+correct_distance_het2<-function(n1,samplingdates,dm1){
   c1=matrix(rep(samplingdates,n1),n1,n1,byrow=FALSE)
   c2=matrix(rep(samplingdates,n1),n1,n1,byrow=TRUE)
   correction=c1+c2-2*diag(samplingdates)
@@ -14,6 +14,7 @@ correct_distance_het2<-function(n_sample,samplingdates,dm1){
   return(CorrDistance)
 } 
 
+#NEW DOUBLE CHECK
 upgma_tree_correction<-function(CorrDistance,n_sample,samp_times,name_samp){
   #Create UPGMA tree
   treeUPGMA1<-upgma(CorrDistance)
