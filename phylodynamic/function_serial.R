@@ -76,26 +76,16 @@ mu_linear_reg<-function(alig){
   dates_samp<-ymd(substr(ids, start = nchar(ids) - 9, stop = nchar(ids)))
   ##A rough estimate of mutation rate
   x<-dates_samp-dates_samp[length(dates_samp)]
-  hamming<-as.matrix(dist.hamming(as.phyDat(alig),ratio=FALSE))
+  hamming<-as.matrix(dist.hamming(as.phyDat(alig),ratio=T))
   reg<-lm(hamming[nrow(hamming),-nrow(hamming)]~-1+x[-nrow(hamming)])
   #Convert data to 0s and 1s - Assumes the reference sequence is the last row
   data.matrix<-as.character(as.matrix(alig))
-  mu<-reg$coefficients[[1]]*365/length(as.phyDat(alig)[[1]])
+  mu<-reg$coefficients[[1]]*365
   return(mu)
 }
 
 
-mu_linear_reg_id<-function(alig,id.ref){
-  n = length(alig)
-  ids = names(alig)
-  dates_samp<-ymd(substr(ids, start = nchar(ids) - 9, stop = nchar(ids)))
-  ##A rough estimate of mutation rate
-  x<-dates_samp-dates_samp[id.ref]
-  hamming<-as.matrix(dist.hamming(as.phyDat(alig),ratio=FALSE))
-  reg<-lm(hamming[nrow(hamming),-nrow(hamming)]~-1+x[-nrow(hamming)])
-  mu<-reg$coefficients[[1]]*365/length(alig[[1]])
-  return(mu)
-}
+
 
 
 axis_label<-function(bnp,lastdate,byy=5/365){

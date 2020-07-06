@@ -14,7 +14,7 @@ library(ape)
 library(lubridate)
 source("function_serial.R")
 #Read fasta file
-country<-"France"
+country<-"fastaFrance"
 fastaname<-paste(country,".fasta",sep="")
 fastaformat<-read.FASTA(fastaname)
 ```
@@ -47,11 +47,9 @@ while(table(samp_times)[1]==1){
 }
 ```
 
-Compute mutation rate. You need to specify which it is the reference sequence.
+Compute mutation rate. Note: the reference sequence must be in the last spot
 ```{r,echo=FALSE}
-id.ref<-which(sapply(names(fastaformat),grepl,'EPI_ISL_402125')==T)
-mu<-mu_linear_reg_id(fastaformat,id.ref)
-
+mu<-mu_linear_reg(fastaformat)
 ```
 
 Compute serial UPGMA tree and plot it
