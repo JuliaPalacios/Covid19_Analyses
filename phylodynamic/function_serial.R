@@ -64,7 +64,15 @@ trimBranches2 <- function(tree, n_sample, sign,name_samp) {
 serial_upgma<-function(fastafile,mu, samp_times, name_samp, model="JC69"){
   dm <- as.matrix(dist.ml(fastafile,model))
   dm1=as.matrix(dm/mu)
-  corr_distance<-correct_distance_het2(n_sample=dim(name_samp)[1],samp_times,dm1)
+  corr_distance<-correct_distance_het2(dim(name_samp)[1],samp_times,dm1)
+  tree<-upgma_tree_correction(corr_distance,n_sample=dim(name_samp)[1],samp_times,name_samp)
+  return(tree)
+}
+
+serial_upgma_inputDist<-function(distList,mu, samp_times, name_samp){
+  dm <- as.matrix(distList$distGen)
+  dm1=as.matrix(dm/mu)
+  corr_distance<-correct_distance_het2(dim(name_samp)[1],samp_times,dm1)
   tree<-upgma_tree_correction(corr_distance,n_sample=dim(name_samp)[1],samp_times,name_samp)
   return(tree)
 }
@@ -83,6 +91,20 @@ mu_linear_reg<-function(alig){
   mu<-reg$coefficients[[1]]*365
   return(mu)
 }
+
+mu_linear_reg_inputDist<-function(distList){
+  n = distList$n
+  ids = distList$seq_names
+  dates_samp<-ymd(substr(ids, start = nchar(ids) - 9, stop = nchar(ids)))
+  ##A rough estimate of mutation rate
+  x<-dates_samp-dates_samp[length(dates_samp)]
+  hamming<-as.matrix(distList$hamming)
+  reg<-lm(hamming[nrow(hamming),-nrow(hamming)]~-1+x[-nrow(hamming)])
+  #Convert data to 0s and 1s - Assumes the reference sequence is the last row
+  mu<-reg$coefficients[[1]]*365
+  return(mu)
+}
+
 
 
 

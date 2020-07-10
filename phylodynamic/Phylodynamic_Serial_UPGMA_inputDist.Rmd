@@ -1,0 +1,81 @@
+---
+title: "Phylodynamics using Serial UPGMA"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load the FASTA file of your county of interest. 
+```{r, echo=FALSE}
+library(phylodyn)
+library(ape)
+library(lubridate)
+source("function_serial.R")
+#Read fasta file
+country<-"distFrance"
+data<-paste(country,".rda",sep="")
+distList<-load(data)
+```
+
+distList should be a list such that
+distList$n is the sample size
+distList$seq_names should be the names of the sequence
+distList$hamming is a R dist object of hamming matrices
+distList$distGen is a R dist object of a genetic distance of choice
+
+Extract sequences, sequence names, and sampling dates from the file
+```{r, echo=FALSE}
+#Save name of the sequence and sampling times from the file
+n<-distList$n
+seq_names<-distList$seq_names
+samp_times<-c()
+for (r in seq_names){
+  samp_times<-c(samp_times,paste(strsplit(r,"|")[[1]][(length(strsplit(r,"|")[[1]])-9):length(strsplit(r,"|")[[1]])],collapse =""))
+}
+samp_times<-decimal_date(date(samp_times))
+lastdate<-max(samp_times)
+samp_times<-max(samp_times)-samp_times
+name_samp<-cbind(samp_times,seq_names)
+```
+
+Ensure that there are at least two sequences at t=0, otherwise remove the sequence
+```{r, echo=FALSE}
+while(table(samp_times)[1]==1){
+  idx<-which(samp_times==0)
+  #Remove the sequence observed only once
+  fastaformat <- fastaformat[-idx]
+  seq_names<-seq_names[-idx]
+  samp_times<-samp_times[-idx]
+  name_samp<-name_samp[-idx,]
+  #Make the the last sequence the new 0
+  samp_times<-samp_times-min(samp_times)
+}
+```
+
+Compute mutation rate. Note: the reference sequence must be in the last spot
+```{r,echo=FALSE}
+mu<-mu_linear_reg_inputDist(distList)
+```
+
+Compute serial UPGMA tree and plot it
+```{r,echo=FALSE}
+tree<-serial_upgma_inputDist(distList,mu, samp_times, name_samp)
+plot(tree,show.tip.label = TRUE,cex=.3)
+```
+
+
+
+
+Phylodynamic analysis and its plots.
+```{r,echo=FALSE}
+bnp<-BNPR(tree)
+bnp_ps<-BNPR_PS(tree)
+
+axlabs<-axis_label(bnp_ps,lastdate,byy=4/365)
+
+plot_BNPR2(bnp,axlabs = axlabs)
+plot_BNPR2(bnp_ps,axlabs = axlabs)
+```
+
