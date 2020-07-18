@@ -13,7 +13,7 @@ ml R
 Rscript quality_check.R > outqual20200718
 This code will place two new files in your data folder.
 
-2. *Subset_fiter.R* Creates a fasta file per country
+2. *Subset_fiter.R* creates a fasta file per country and *Subset_filter2.R* per county for USA
 ml R
 Rscript subset_filter.R >outfileter20200718
 
