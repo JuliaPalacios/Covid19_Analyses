@@ -6,12 +6,16 @@ This is an ongoing project. Please refer to [todo](https://github.com/JuliaPalac
 
 Data Last update: July 18, 2020.
 
-0. Data update. We are processing data on Sherlock. Deposit the msa.fasta and metadata.tsv files from Gisaid into a folder named with the current date in /home/groups/juliapr/covid19/alignment/data/
+0. *Data update*. We are processing data on Sherlock. Deposit the msa.fasta and metadata.tsv files from Gisaid into a folder named with the current date in /home/groups/juliapr/covid19/alignment/data/
 
 1. *Data pre-processing*. This code is available on Sherlock: /home/groups/juliapr/covid19/alignment/code/. Edit quality_check.R to change the name of the data folder.
 ml R
-Rscript quality_check.R > outqual20200618
+Rscript quality_check.R > outqual20200718
 This code will place two new files in your data folder.
+
+2. *Subset_fiter.R* Creates a fasta file per country
+ml R
+Rscript subset_filter.R >outfileter20200718
 
 2. *sites_ref.R* removes sites that are not in the reference sequence and *subset_filter.R* will filter sites that have more than 20% of missing data.
 
