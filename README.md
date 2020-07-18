@@ -1,11 +1,17 @@
 # Covid-19 Genetic Epidemiology Analyses
 
-In this repository we report our analyses of publicly available genomic sequences of Human h-Cov19. All the data used here is provided by the laboratories that kindly shared information through GISAID. We cannot share the input datafile, however please refer to Data pre-processing to generate the fasta file: aligned.fasta. Pre-processing relies on https://github.com/nextstrain/ncov . We are thankful for their effort and for making their work publicly available.
-
+In this repository we report our code and analyses of publicly available genomic sequences of Human h-Cov19. All the data used here is provided by the laboratories that kindly shared information through GISAID. 
 
 This is an ongoing project. Please refer to [todo](https://github.com/JuliaPalacios/Covid19_Analyses/tree/master/todo) if you would like to contribute on a certain topic.
 
-1. Data pre-processing. We need to download the msa and metadata files directly from GISAID. Sequences are already aligned. We need to place those files in the data folder. We then need to run *quality_check.R*. This code will place two new files in your data folder.
+Data Last update: July 18, 2020.
+
+0. Data update. We are processing data on Sherlock. Deposit the msa.fasta and metadata.tsv files from Gisaid into a folder named with the current date in /home/groups/juliapr/covid19/alignment/data/
+
+1. *Data pre-processing*. This code is available on Sherlock: /home/groups/juliapr/covid19/alignment/code/. Edit quality_check.R to change the name of the data folder.
+ml R
+Rscript quality_check.R > outqual20200618
+This code will place two new files in your data folder.
 
 2. *sites_ref.R* removes sites that are not in the reference sequence and *subset_filter.R* will filter sites that have more than 20% of missing data.
 
@@ -53,6 +59,8 @@ Leonardo Bonanno
 Aaron Behr
 
 Samyak Rajanala
+
+Lorenzo Cappello
 
 ## Other Data sources:
 https://midasnetwork.us/covid-19/
