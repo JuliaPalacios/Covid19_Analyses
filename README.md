@@ -17,7 +17,9 @@ This code will place two new files in your data folder.
 ml R
 Rscript subset_filter.R >outfileter20200718
 
-2. *sites_ref.R* removes sites that are not in the reference sequence and *subset_filter.R* will filter sites that have more than 20% of missing data.
+3. *Initial_distances.R* Computes a vector the vector of  hamming distances to the ancestral reference and the matrices of genetic distances
+
+4. *sites_ref.R* removes sites that are not in the reference sequence and *subset_filter.R* will filter sites that have more than 20% of missing data.
 
 3. Accessing the sequences is slow. You can subset data with *subset.fasta* function in *subset_data.R*.
 
