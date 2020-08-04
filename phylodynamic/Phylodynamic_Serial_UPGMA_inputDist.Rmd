@@ -15,8 +15,9 @@ library(lubridate)
 source("function_serial.R")
 #Read fasta file
 country<-"distFrance"
-data<-paste(country,".rda",sep="")
-distList<-load(data)
+data<-paste(country,".RData",sep="")
+load(data)
+distList<-listout
 ```
 
 distList should be a list such that
@@ -36,21 +37,22 @@ for (r in seq_names){
 }
 samp_times<-decimal_date(date(samp_times))
 lastdate<-max(samp_times)
-samp_times<-max(samp_times)-samp_times
-name_samp<-cbind(samp_times,seq_names)
+samp_times2<-max(samp_times)-samp_times
+name_samp<-cbind(samp_times2,seq_names)
 ```
 
 Ensure that there are at least two sequences at t=0, otherwise remove the sequence
 ```{r, echo=FALSE}
-while(table(samp_times)[1]==1){
-  idx<-which(samp_times==0)
+while(table(samp_times2)[1]==1){
+  idx<-which(samp_times2==0)
   #Remove the sequence observed only once
-  fastaformat <- fastaformat[-idx]
+  #fastaformat <- fastaformat[-idx]
   seq_names<-seq_names[-idx]
-  samp_times<-samp_times[-idx]
+  samp_times2<-samp_times2[-idx]
   name_samp<-name_samp[-idx,]
   #Make the the last sequence the new 0
-  samp_times<-samp_times-min(samp_times)
+  #samp_times<-samp_times-min(samp_times)
+  distList$distGen<-distList$distGen[-idx,-idx]
 }
 ```
 
@@ -61,8 +63,8 @@ mu<-mu_linear_reg_inputDist(distList)
 
 Compute serial UPGMA tree and plot it
 ```{r,echo=FALSE}
-tree<-serial_upgma_inputDist(distList,mu, samp_times, name_samp)
-plot(tree,show.tip.label = TRUE,cex=.3)
+tree<-serial_upgma_inputDist(distList,mu, samp_times2, name_samp)
+plot(tree,show.tip.label = FALSE,cex=.3)
 ```
 
 
