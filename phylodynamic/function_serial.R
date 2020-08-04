@@ -91,15 +91,30 @@ mu_linear_reg<-function(alig){
   mu<-reg$coefficients[[1]]*365
   return(mu)
 }
+#this is the original function as a backup
+# mu_linear_reg_inputDist<-function(distList){
+#   n = distList$n
+#   ids = distList$seq_names
+#   dates_samp<-ymd(substr(ids, start = nchar(ids) - 9, stop = nchar(ids)))
+#   ##A rough estimate of mutation rate
+#   x<-dates_samp-dates_samp[length(dates_samp)]
+#   hamming<-as.matrix(distList$hamming)
+#   reg<-lm(hamming[nrow(hamming),-nrow(hamming)]~-1+x[-nrow(hamming)])
+#   #Convert data to 0s and 1s - Assumes the reference sequence is the last row
+#   mu<-reg$coefficients[[1]]*365
+#   return(mu)
+# }
 
 mu_linear_reg_inputDist<-function(distList){
   n = distList$n
   ids = distList$seq_names
   dates_samp<-ymd(substr(ids, start = nchar(ids) - 9, stop = nchar(ids)))
+  anc_date<-ymd("2019-12-31")
   ##A rough estimate of mutation rate
-  x<-dates_samp-dates_samp[length(dates_samp)]
+ # x<-dates_samp-dates_samp[length(dates_samp)]
+  x<-dates_samp-anc_date
   hamming<-as.matrix(distList$hamming)
-  reg<-lm(hamming[nrow(hamming),-nrow(hamming)]~-1+x[-nrow(hamming)])
+  reg<-lm(hamming~-1+x)
   #Convert data to 0s and 1s - Assumes the reference sequence is the last row
   mu<-reg$coefficients[[1]]*365
   return(mu)
