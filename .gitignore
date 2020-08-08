@@ -1,4 +1,18 @@
+# macOS folder data
+.DS_Store
 
+# R workpaces & history
+*.code-workspace
+Rcode/.Rhistory
+.Rhistory
+*.Rproj
+.Rproj.user
+
+# ShinyApp data & generated folders
+palacios_covid_app/data
+palacios_covid_app/rsconnect
+
+# Specific data files to ignore
 alignment/data/20200522/metadata_2020-05-22_20-10.tsv.gz
 alignment/data/20200522/msa_0522.zip
 alignment/data/20200524/all_meta.tsv
@@ -18,4 +32,6 @@ alignment/data/20200524/test.fasta
 alignment/data/20200524/tmp_beast.fasta
 alignment/data/headers_all.txt
 alignment/data/test.fasta
-Rcode/.Rhistory
+alignment/data/all_seq.fasta
+alignment/data/all_meta.tsv
+alignment/data/owid-covid-data.csv
