@@ -20,17 +20,15 @@ fluidPage(
       wellPanel(style="margin-bottom:0", selectInput(
         inputId = "selectedCountry",
         label = strong("Country"),
-        choices = sort(names(trees)),
+        choices = sort(names(countries)),
         selected = "China"
       ))
     )
   ),
   fluidRow(
-    column(6, withSpinner(plotOutput("tree_plot"))),
-    column(6, withSpinner(plotOutput("case_plot")))
+    column(12, withSpinner(plotOutput("tree_plots")))
   ),
   fluidRow(
-    column(6, withSpinner(plotOutput("eps_plot"))),
-    column(6, withSpinner(plotOutput("eps_plot_ps")))
+    column(12, withSpinner(plotOutput("case_plot")))
   )
 )

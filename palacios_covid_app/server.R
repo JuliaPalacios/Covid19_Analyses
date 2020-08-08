@@ -2,6 +2,11 @@
 
 
 function(input, output) {
+  # tree_cache <- reactiveValues()
+  # for (c in names(countries)) {
+  #   tree_cache[[]] = NULL
+  # }
+  
   output$case_plot <- renderPlot({
     country <- reformat_country(input$selectedCountry)
     cases <- cases_all[cases_all$location == country, ]
@@ -36,37 +41,32 @@ function(input, output) {
       col = c("black", "blue", "red"), lty = 1, lwd = 2
     )
   })
-
-  output$tree_plot <- renderPlot({
-    plot(trees[[input$selectedCountry]]$tree, show.tip.label = FALSE, cex = .3,
-         main = "UPGMA Tree")
-  })
-
-  output$eps_plot <- renderPlot({
+  
+  output$tree_plots <- renderPlot({
     country <- input$selectedCountry
-    # Cannot abstract this out into a common function because R annoyingly
-    # copies list vars rather than just passing refs
-    if (is.element(country, names(bnp_cache))) {
-      bnp <- bnp_cache[[country]]
-    } else {
-      bnp <- BNPR(trees[[country]]$tree)
-      bnp_cache[[country]] <<- bnp # set global var
-    }
-    axlabs <- axis_label(bnp, trees[[country]]$lastdate, byy = 4 / 365)
-    plot_BNPR2(bnp, axlabs = axlabs, log = "", 
+    tree_meta <- compute_tree(country, mutation_rate)
+    
+    # 2-row matrix, full-width plot on row 1, row 2 split.
+    # layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+    layout(matrix(c(1,2,1,3), 2, 2, byrow = TRUE))
+    par(mar=c(1,1,1,1)) # set margins
+    
+    # tree plot
+    par(mai=c(0,0,0.5,0)) # bottom, left, top, right margin of plot
+    plot(tree_meta$tree, show.tip.label = FALSE, cex = .3, main = "UPGMA Tree")
+    
+    # eps plot
+    bnp <- BNPR(tree_meta$tree)
+    axlabs <- axis_label(bnp, tree_meta$lastdate, byy = 4 / 365)
+    par(mai=c(0.75,0.5,0.5,0.5))
+    plot_BNPR2(bnp, axlabs = axlabs, log = "", xlab = NULL,
                main = "Effective Population Size (EPS)")
-  })
-
-  output$eps_plot_ps <- renderPlot({
-    country <- input$selectedCountry
-    if (is.element(country, names(bnp_ps_cache))) {
-      bnp_ps <- bnp_ps_cache[[country]]
-    } else {
-      bnp_ps <- BNPR_PS(trees[[country]]$tree)
-      bnp_ps_cache[[country]] <<- bnp_ps # set global var
-    }
-    axlabs <- axis_label(bnp_ps, trees[[country]]$lastdate, byy = 4 / 365)
-    plot_BNPR2(bnp_ps, axlabs = axlabs, log = "",
-        main = "EPS - Preferential Sampling")
+    
+    # eps ps plot
+    bnp_ps <- BNPR_PS(tree_meta$tree)
+    axlabs <- axis_label(bnp_ps, tree_meta$lastdate, byy = 4 / 365)
+    par(mai=c(0.5,0.5,0.75,0.5))
+    plot_BNPR2(bnp_ps, axlabs = axlabs, log = "", xlab = NULL,
+               main = "EPS - Preferential Sampling")
   })
 }
