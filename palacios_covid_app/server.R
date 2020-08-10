@@ -52,28 +52,36 @@ function(input, output) {
     country <- input$selectedCountry
     tree_meta <- compute_tree(country, as.numeric(input$selectedMu))
     
-    # 2-row matrix, full-width plot on row 1, row 2 split.
-    # layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
-    layout(matrix(c(1,2,1,3), 2, 2, byrow = TRUE))
-    par(mar=c(0,0,0,0)) # set margins
-    
-    # tree plot
-    par(mai=c(0,0,0.5,0.5)) # bottom, left, top, right margin of plot
-    plot(tree_meta$tree, show.tip.label = FALSE, cex = .3, main = "UPGMA Tree")
-    
-    # eps plot
-    bnp <- BNPR(tree_meta$tree)
-    axlabs <- eps_axlabs()
-    par(mai=c(0.75,0,0.5,0.5))
-    plot_BNPR2(bnp, axlabs = axlabs, log = "", xlab = NULL,
-               xlim = c(max(axlabs$x),min(axlabs$x)),
-               main = "Effective Population Size (EPS)")
-    
-    # eps ps plot
-    bnp_ps <- BNPR_PS(tree_meta$tree)
-    par(mai=c(0.5,0,0.75,0.5))
-    plot_BNPR2(bnp_ps, axlabs = axlabs, log = "", xlab = NULL,
-               xlim = c(max(axlabs$x),min(axlabs$x)),
-               main = "EPS - Preferential Sampling")
+    if (!is.null(tree_meta$tree)) {
+      # 2-row matrix, full-width plot on row 1, row 2 split.
+      # layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+      layout(matrix(c(1,2,1,3), 2, 2, byrow = TRUE))
+      par(mar=c(0,0,0,0)) # set margins
+      
+      # tree plot
+      par(mai=c(0,0,0.5,0.5)) # bottom, left, top, right margin of plot
+      plot(tree_meta$tree, show.tip.label = FALSE, cex = .3, main = "UPGMA Tree")
+      
+      # eps plot
+      bnp <- BNPR(tree_meta$tree)
+      axlabs <- eps_axlabs()
+      par(mai=c(0.75,0,0.5,0.5))
+      plot_BNPR2(bnp, axlabs = axlabs, log = "", xlab = NULL,
+                 xlim = c(max(axlabs$x),min(axlabs$x)),
+                 main = "Effective Population Size (EPS)")
+      
+      # eps ps plot
+      bnp_ps <- BNPR_PS(tree_meta$tree)
+      par(mai=c(0.5,0,0.75,0.5))
+      plot_BNPR2(bnp_ps, axlabs = axlabs, log = "", xlab = NULL,
+                 xlim = c(max(axlabs$x),min(axlabs$x)),
+                 main = "EPS - Preferential Sampling")
+    } else {
+      plot.new()
+      title = "Not enough data for phylogenetics"
+      subtitle = "(<10 days with multiple sequences available)"
+      mtext(side=3, line=3, at=0.2, adj=0, cex=1, title)
+      mtext(side=3, line=2, at=0.2, adj=0, cex=0.7, subtitle)
+    }
   })
 }

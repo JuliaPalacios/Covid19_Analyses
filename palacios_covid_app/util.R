@@ -104,7 +104,7 @@ compute_tree <- function(country, mu) {
 
   # Ensure that there are at least 2 seqs from the most recent sampling date.
   # While there are <2 seqs on last date, remove the seq.
-  while (table(samp_times)[1] == 1) {
+  while (table(samp_times)[1] == 1 && length(samp_times) >= 10) {
     idx <- which(samp_times == 0)
     # remove the sequence observed only once
     dists$seq_names <- dists$seq_names[-idx]
@@ -115,6 +115,12 @@ compute_tree <- function(country, mu) {
     dists$hamming <- dists$hamming[-idx]
     dists$distGen <- dists$distGen[-idx, -idx]
   }
+  if (length(samp_times) < 10) {
+    print("Fewer than 10 dates with multiple samples; will not compute tree.")
+    return(list())
+  }
+  
+  
   
   # TODO not computing mutation rate for now.
   # mu <- mu_linear_reg_inputDist(dists)
