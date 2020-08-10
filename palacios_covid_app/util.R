@@ -11,8 +11,23 @@ reformat_country <- function(country) {
   if (country == "Democratic Republic of the Congo") {
     return("Democratic Republic of Congo")
   }
+  if (startsWith(country, 'UK - ')) {
+    return('United Kingdom')
+  }
+  if (startsWith(country, 'USA - ')) {
+    state <- substr(country, 7, nchar(country))
+    if (state == 'Washington DC'){
+      return('District of Columbia')
+    }
+    return(state)
+  }
 
   return(country)
+}
+
+is_state <- function(country) {
+  # return(length(strsplit(country, "[ - ]")[[1]]) > 1)
+  return((startsWith(country, 'USA - ')))
 }
 
 
@@ -26,9 +41,23 @@ parse_tree_filename <- function(tree_filename) {
 
 parse_distlist_filename <- function(filename) {
   # Naming convention should change so that this is more possible to do
-  loc <- substr(filename, 1, nchar(filename) - 10) # 'dist.RData' suffix 10 chrs
-  split <- strsplit(loc, "[_]")
-  return(loc)
+  name <- substr(filename, 1, nchar(filename) - 10) # 'dist.RData' suffix 10 chrs
+  split <- strsplit(name, "[+]")
+  
+  prefix <- ''
+  loc <- ''
+  if (length(split[[1]]) == 2) {
+    loc <- split[[1]][2]
+    # this is a state - for now, special case UK and US
+    if (split[[1]][1] == 'UnitedKingdom') {
+      prefix <- 'UK - '
+    } else if (split[[1]][1] == 'USA') {
+      prefix <- 'USA - '
+    }
+  } else {
+    loc <- split[[1]][1]
+  }
+  return(paste0(prefix, gsub('_', ' ', loc)))
 }
 
 compute_tree <- function(country, mu) {
