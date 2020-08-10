@@ -22,7 +22,14 @@ fluidPage(
         label = strong("Country"),
         choices = sort(names(countries)),
         selected = "China"
-      ))
+      )),
+      wellPanel(
+        textInput(
+          inputId = "selectedMu",
+          label = strong("Mutation Rate"),
+          value = ".001"
+        )
+      ),
     )
   ),
   fluidRow(

@@ -44,7 +44,7 @@ function(input, output) {
   
   output$tree_plots <- renderPlot({
     country <- input$selectedCountry
-    tree_meta <- compute_tree(country, mutation_rate)
+    tree_meta <- compute_tree(country, as.numeric(input$selectedMu))
     
     # 2-row matrix, full-width plot on row 1, row 2 split.
     # layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))

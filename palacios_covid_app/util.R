@@ -64,10 +64,11 @@ compute_tree <- function(country, mu) {
     name_samp <- name_samp[-idx,]
     # make the last sequence the new 0
     samp_times<-samp_times-min(samp_times)
+    dists$hamming <- dists$hamming[-idx]
     dists$distGen <- dists$distGen[-idx, -idx]
   }
   
-  # Not computing mutation rate for now.
+  # TODO not computing mutation rate for now.
   # mu <- mu_linear_reg_inputDist(dists)
   
   tree <- serial_upgma_inputDist(dists, mu, samp_times, name_samp)

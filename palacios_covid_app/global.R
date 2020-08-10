@@ -36,4 +36,4 @@ for (f in list.files(dists_dir)) {
   countries[parse_distlist_filename(f)] <- file.path(dists_dir, f)
 }
 
-mutation_rate <- .001
+# mutation_rate <- .001
