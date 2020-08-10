@@ -18,7 +18,7 @@ function(input, output) {
     
     # use as.Date() instead of date() to avoid tz warning
     dates <- decimal_date(as.Date(cases$date))
-    date.labs <- seq(min(dates), max(dates), by = 4 / 365)
+    date.labs <- seq(start_date, data_date, by = 4 / 365)
 
     ymax <- as.integer(max(max(cases$new_cases), max(cases$total_deaths)) * 1.1)
     
@@ -26,7 +26,8 @@ function(input, output) {
     # ylim=c(0, max(cases$total_cases)) but it will dwarf everything else
     plot(dates, cases$new_cases,
       type = "l", xaxt = "n", main = paste("Case Data -", country),
-      ylab = "Count", xlab = "", lwd = 2, ylim = c(0,ymax)
+      ylab = "Count", xlab = "", lwd = 2, ylim = c(0,ymax),
+      xlim = c(start_date, data_date)
     ) # ---------------------------- CASES PLOT
     axlabs2 <- list(
       x = date.labs, labs = format(date_decimal(date.labs), "%b-%d"),
@@ -54,24 +55,25 @@ function(input, output) {
     # 2-row matrix, full-width plot on row 1, row 2 split.
     # layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
     layout(matrix(c(1,2,1,3), 2, 2, byrow = TRUE))
-    par(mar=c(1,1,1,1)) # set margins
+    par(mar=c(0,0,0,0)) # set margins
     
     # tree plot
-    par(mai=c(0,0,0.5,0)) # bottom, left, top, right margin of plot
+    par(mai=c(0,0,0.5,0.5)) # bottom, left, top, right margin of plot
     plot(tree_meta$tree, show.tip.label = FALSE, cex = .3, main = "UPGMA Tree")
     
     # eps plot
     bnp <- BNPR(tree_meta$tree)
-    axlabs <- axis_label(bnp, tree_meta$lastdate, byy = 4 / 365)
-    par(mai=c(0.75,0.5,0.5,0.5))
+    axlabs <- eps_axlabs()
+    par(mai=c(0.75,0,0.5,0.5))
     plot_BNPR2(bnp, axlabs = axlabs, log = "", xlab = NULL,
+               xlim = c(max(axlabs$x),min(axlabs$x)),
                main = "Effective Population Size (EPS)")
     
     # eps ps plot
     bnp_ps <- BNPR_PS(tree_meta$tree)
-    axlabs <- axis_label(bnp_ps, tree_meta$lastdate, byy = 4 / 365)
-    par(mai=c(0.5,0.5,0.75,0.5))
+    par(mai=c(0.5,0,0.75,0.5))
     plot_BNPR2(bnp_ps, axlabs = axlabs, log = "", xlab = NULL,
+               xlim = c(max(axlabs$x),min(axlabs$x)),
                main = "EPS - Preferential Sampling")
   })
 }

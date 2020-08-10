@@ -11,6 +11,9 @@ library(phangorn) # need for upgma(), called in function_serial
 source("util.R") # utils for UI and Server
 data_dir <- get_latest_data_dir()
 
+start_date <- decimal_date(as.Date("2019-12-01"))
+data_date <- decimal_date(parse_date_from_dir(data_dir))
+
 # Load data files and helper scripts and verify they all exist
 function_serial_script <- file.path(data_dir, "function_serial.R")
 #meta_fp <- file.path(data_dir, "all_meta.tsv")

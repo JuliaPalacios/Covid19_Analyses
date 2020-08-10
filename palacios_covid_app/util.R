@@ -4,6 +4,25 @@ get_latest_data_dir <- function() {
   latest_data_dir <- sort(data_dirs, decreasing = T)[[1]]
 }
 
+parse_date_from_dir <- function(d) {
+  split <- strsplit(d, "/")
+  ds <- split[[1]][length(split[[1]])] # folder name in "YYYYMMDD" format
+  date <- paste(substr(ds,1,4), substr(ds,5,6), substr(ds,7,8), sep='-')
+  return(as.Date(date))
+}
+
+
+
+eps_axlabs <- function() {
+  byy <- 4/365
+  daterange <- seq(start_date, data_date, by=byy)
+  axlabs <- list(x = daterange,
+                 labs = format(date_decimal(daterange), "%b-%d"), 
+                 cexlab = .1)
+  axlabs$x <- data_date - axlabs$x
+  return(axlabs)
+}
+
 reformat_country <- function(country) {
   if (country == "USA") {
     return("United States")

@@ -17,25 +17,25 @@ fluidPage(
       )
     })),
     column(4, style="padding-top: 10px; padding-right: 40px", 
-      wellPanel(style="margin-bottom:0", selectInput(
-        inputId = "selectedCountry",
-        label = strong("Country"),
-        choices = sort(names(countries)),
-        selected = "China"
-      )),
-      wellPanel(
-        textInput(
+      wellPanel(style="margin-bottom:0", 
+        selectInput(
+          inputId = "selectedCountry",
+          label = strong("Country"),
+          choices = sort(names(countries)),
+          selected = "China"
+        ),textInput(
           inputId = "selectedMu",
           label = strong("Mutation Rate"),
           value = ".001"
         )
-      ),
+      )
+
     )
   ),
   fluidRow(
     column(12, withSpinner(plotOutput("tree_plots")))
   ),
   fluidRow(
-    column(12, withSpinner(plotOutput("case_plot")))
+    column(7, offset=5, withSpinner(plotOutput("case_plot")))
   )
 )
