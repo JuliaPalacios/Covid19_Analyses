@@ -13,13 +13,16 @@ parse_date_from_dir <- function(d) {
 
 
 
-eps_axlabs <- function() {
+date_axlabs <- function(zeroed=F) {
   byy <- 4/365
   daterange <- seq(start_date, data_date, by=byy)
   axlabs <- list(x = daterange,
                  labs = format(date_decimal(daterange), "%b-%d"), 
                  cexlab = .1)
-  axlabs$x <- data_date - axlabs$x
+  
+  if (zeroed) {
+    axlabs$x <- data_date - axlabs$x  
+  }
   return(axlabs)
 }
 

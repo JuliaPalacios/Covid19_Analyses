@@ -18,7 +18,7 @@ function(input, output) {
     
     # use as.Date() instead of date() to avoid tz warning
     dates <- decimal_date(as.Date(cases$date))
-    date.labs <- seq(start_date, data_date, by = 4 / 365)
+    #date.labs <- seq(start_date, data_date, by = 4/365)
 
     ymax <- as.integer(max(max(cases$new_cases), max(cases$total_deaths)) * 1.1)
     
@@ -29,10 +29,11 @@ function(input, output) {
       ylab = "Count", xlab = "", lwd = 2, ylim = c(0,ymax),
       xlim = c(start_date, data_date)
     ) # ---------------------------- CASES PLOT
-    axlabs2 <- list(
-      x = date.labs, labs = format(date_decimal(date.labs), "%b-%d"),
-      cexlab = .1
-    )
+    # axlabs <- list(
+    #   x = date.labs, labs = format(date_decimal(date.labs), "%b-%d"),
+    #   cexlab = .1
+    # )
+    axlabs2 <- date_axlabs(zeroed=F)
     axis(1, at = axlabs2$x, labels = axlabs2$labs, cex.axis = 1, las = 1)
     # abline(v = trees[[input$selectedCountry]]$lastdate, lty = 2)
     #points(dates, cases$total_cases, type = "l",
@@ -64,7 +65,7 @@ function(input, output) {
       
       # eps plot
       bnp <- BNPR(tree_meta$tree)
-      axlabs <- eps_axlabs()
+      axlabs <- date_axlabs(zeroed=T)
       par(mai=c(0.75,0,0.5,0.5))
       plot_BNPR2(bnp, axlabs = axlabs, log = "", xlab = NULL,
                  xlim = c(max(axlabs$x),min(axlabs$x)),
