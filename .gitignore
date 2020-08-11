@@ -11,6 +11,7 @@ Rcode/.Rhistory
 # ShinyApp data & generated folders
 palacios_covid_app/data
 palacios_covid_app/rsconnect
+palacios_covid_app_old_staged_data
 
 # Specific data files to ignore
 alignment/data/20200522/metadata_2020-05-22_20-10.tsv.gz

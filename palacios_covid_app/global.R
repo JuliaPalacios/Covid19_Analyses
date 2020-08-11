@@ -36,6 +36,10 @@ cases_usa <- read.csv(cases_usa_fp)
 # Change column names to match with cases_all
 names(cases_usa)[names(cases_usa)=="deaths"] <- "total_deaths"
 
+# Delete entries in owid-covid-data where data were not recorded (NA values),
+# because it confuses the creation of plots.
+cases_all <- cases_all[-which(is.na(cases_all$new_cases)),]
+
 # Calculate new cases per day in USA since it is not in the CSV
 new_daily_cases <- integer(nrow(cases_usa))
 for(i in 1:nrow(cases_usa)) {
